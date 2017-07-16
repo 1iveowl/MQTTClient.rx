@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IMQTTClient.rx.Model
+namespace IMQTTClientRx.Model
 {
     public enum MQTTClientState
     {

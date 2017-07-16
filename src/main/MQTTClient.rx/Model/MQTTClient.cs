@@ -1,25 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using IMQTTClient.rx.Model;
+using IMQTTClientRx.Model;
+using MQTTnet.Core;
+using MQTTnet.Core.Client;
+using MQTTnet.Core.Packets;
+using MQTTnet.Core.Protocol;
 
-namespace MQTTClient.rx.Model
+namespace MQTTClientRx.Model
 {
-    internal class MQTTClient : IMQTTClient.rx.Model.IMQTTClient
+    internal class MQTTClient : IMQTTClient
     {
-        public Task SubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
+        private readonly MqttClient _mqttClient;
+
+        internal MQTTClient(MqttClient client)
         {
-            throw new NotImplementedException();
+            _mqttClient = client;
+        }
+        
+        public async Task SubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
+        {
+            await _mqttClient.SubscribeAsync(WrapTopicFilters(topicFilters));
         }
 
-        public Task UnsubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
+        public async Task UnsubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
         {
-            throw new NotImplementedException();
+            await _mqttClient.Unsubscribe(WrapTopicFiltersToString(topicFilters));
         }
 
-        public Task PublishAsync(IMQTTMessage message)
+        public async Task UnsubscribeAsync(string[] topics)
         {
-            throw new NotImplementedException();
+            await _mqttClient.Unsubscribe(topics);
+        }
+
+        public async Task PublishAsync(IMQTTMessage message)
+        {
+            await _mqttClient.PublishAsync(WrapMessage(message));
+        }
+
+        private IList<string> WrapTopicFiltersToString(IEnumerable<ITopicFilter> topicFilters)
+        {
+            return WrapTopicFilters(topicFilters).Select(x => x.Topic).ToArray();
+        }
+
+        private IList<TopicFilter> WrapTopicFilters(IEnumerable<ITopicFilter> topicFilters)
+        {
+            return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, MapQosLevel(tFilter.QualityOfServiceLevel))).ToList();
+        }
+
+        private MqttQualityOfServiceLevel MapQosLevel(MQTTQoSLevel qosLvl)
+        {
+            return (MqttQualityOfServiceLevel)qosLvl;
+        }
+
+        private MqttApplicationMessage WrapMessage(IMQTTMessage message)
+        {
+            
+            return new MqttApplicationMessage(
+                    message.Topic, 
+                    message.Payload, 
+                    MapQosLevel(message.QualityOfServiceLevel), 
+                    retain:message.Retain);
         }
     }
 }

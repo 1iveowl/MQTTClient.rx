@@ -1,4 +1,4 @@
-﻿namespace IMQTTClient.rx.Model
+﻿namespace IMQTTClientRx.Model
 {
     public interface IMQTTMessage
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using IMQTTClient.rx.Model;
+using IMQTTClientRx.Model;
 
-namespace MQTTClient.rx.Model
+namespace MQTTClientRx.Model
 {
     internal class MQTTMessage : IMQTTMessage
     {

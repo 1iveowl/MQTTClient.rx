@@ -17,9 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{61B0A1
 		..\..\README.md = ..\..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTClient.rx", "MQTTClient.rx\MQTTClient.rx.csproj", "{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTClientRx", "MQTTClient.rx\MQTTClientRx.csproj", "{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMQTTClient.rx", "..\interface\IMQTTClient.rx\IMQTTClient.rx.csproj", "{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMQTTClientRx", "..\interface\IMQTTClient.rx\IMQTTClientRx.csproj", "{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Client.Core", "..\test\Test.Client.Core\Test.Client.Core.csproj", "{4B8E746E-A4B8-4F10-92C6-7F78C2665025}"
 EndProject

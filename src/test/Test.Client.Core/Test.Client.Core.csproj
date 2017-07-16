@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClient.rx.csproj" />
-    <ProjectReference Include="..\..\main\MQTTClient.rx\MQTTClient.rx.csproj" />
+    <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClientRx.csproj" />
+    <ProjectReference Include="..\..\main\MQTTClient.rx\MQTTClientRx.csproj" />
   </ItemGroup>
 
 </Project>

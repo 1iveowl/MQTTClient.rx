@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>MQTTClientRx</AssemblyName>
+    <RootNamespace>MQTTClientRx</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClient.rx.csproj" />
+    <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClientRx.csproj" />
   </ItemGroup>
 
 </Project>
