@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using IMQTTClient.rx.Model;
-
-namespace IMQTTClient.rx.Service
+﻿namespace IMQTTClient.rx.Model
 {
     public interface IMQTTMessage
     {

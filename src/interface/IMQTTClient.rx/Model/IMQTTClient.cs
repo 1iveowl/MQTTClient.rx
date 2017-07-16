@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using IMQTTClient.rx.Model;
+using IMQTTClient.rx.Service;
 
-namespace IMQTTClient.rx.Service
+namespace IMQTTClient.rx.Model
 {
     public interface IMQTTClient
     {
-        Task<IObservable<IMQTTMessage>> ObservableMQTTClientAsync();
         Task SubscribeAsync(IEnumerable<ITopicFilter> topicFilters);
         Task UnsubscribeAsync(IEnumerable<ITopicFilter> topicFilters);
+        Task PublishAsync(IMQTTMessage message);
     }
 }
