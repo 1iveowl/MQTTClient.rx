@@ -1,13 +1,7 @@
 ﻿namespace IMQTTClientRx.Model
 {
-    public interface IMQTTMessage
+    public interface IMQTTMessage : IMessage
     {
-        string Topic { get; }
 
-        byte[] Payload { get; }
-
-        MQTTQoSLevel QualityOfServiceLevel { get; }
-
-        bool Retain { get; }
     }
 }

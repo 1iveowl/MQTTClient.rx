@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using IMQTTClientRx.Model;
 
-namespace MQTTClientRx.Model
+namespace Test.Client.Core.Model
 {
-    internal class MQTTMessage : IMQTTMessage
+    internal class WillMessage : IWillMessage
     {
         public string Topic { get; internal set; }
         public byte[] Payload { get; internal set; }

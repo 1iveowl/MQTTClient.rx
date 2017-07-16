@@ -4,9 +4,14 @@ using System.Text;
 
 namespace IMQTTClientRx.Model
 {
-    public interface ITopicFilter
+    public interface IMessage
     {
         string Topic { get; }
+
+        byte[] Payload { get; }
+
         QoSLevel QualityOfServiceLevel { get; }
+
+        bool Retain { get; }
     }
 }

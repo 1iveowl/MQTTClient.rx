@@ -4,7 +4,7 @@ using System.Text;
 
 namespace IMQTTClientRx.Model
 {
-    public interface IMQTTClientTlsOptions
+    public interface ITlsOptions
     {
         bool UseTls { get;}
 

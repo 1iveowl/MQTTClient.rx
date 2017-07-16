@@ -49,7 +49,7 @@ namespace MQTTClientRx.Model
             return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, MapQosLevel(tFilter.QualityOfServiceLevel))).ToList();
         }
 
-        private MqttQualityOfServiceLevel MapQosLevel(MQTTQoSLevel qosLvl)
+        private MqttQualityOfServiceLevel MapQosLevel(QoSLevel qosLvl)
         {
             return (MqttQualityOfServiceLevel)qosLvl;
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using IMQTTClientRx.Model;
 
-namespace MQTTClientRx.Model
+namespace Test.Client.Core.Model
 {
     internal class MQTTMessage : IMQTTMessage
     {
