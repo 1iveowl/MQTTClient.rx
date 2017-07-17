@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{A0D24CE1-EE2E-4FEE-9283-5DB396FC682A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interface", "Interface", "{E415C343-4FD0-4812-BC40-58EE37DDC0B7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{649F2989-3C9B-47BA-81AE-B38C830D75CA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{990BCED9-A674-4D51-A33B-E2553CE1A3B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{61B0A133-C42A-4F94-82DF-1C3C3F703761}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\LICENSE.md = ..\..\LICENSE.md
+		..\..\README.md = ..\..\README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTClientRx", "MQTTClient.rx\MQTTClientRx.csproj", "{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMQTTClientRx", "..\interface\IMQTTClient.rx\IMQTTClientRx.csproj", "{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Client.Core", "..\test\Test.Client.Core\Test.Client.Core.csproj", "{4B8E746E-A4B8-4F10-92C6-7F78C2665025}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B8E746E-A4B8-4F10-92C6-7F78C2665025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B8E746E-A4B8-4F10-92C6-7F78C2665025}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B8E746E-A4B8-4F10-92C6-7F78C2665025}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B8E746E-A4B8-4F10-92C6-7F78C2665025}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B5D5A8B5-0CB0-4286-B57C-99E4AE1E8FF6} = {A0D24CE1-EE2E-4FEE-9283-5DB396FC682A}
+		{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3} = {E415C343-4FD0-4812-BC40-58EE37DDC0B7}
+		{4B8E746E-A4B8-4F10-92C6-7F78C2665025} = {649F2989-3C9B-47BA-81AE-B38C830D75CA}
+	EndGlobalSection
+EndGlobal
