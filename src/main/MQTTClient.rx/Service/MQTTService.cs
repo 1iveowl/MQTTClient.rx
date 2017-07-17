@@ -24,8 +24,9 @@ namespace MQTTClientRx.Service
                 IEnumerable<ITopicFilter> topicFilters = null,
                 IWillMessage willMessage = null)
         {
+            var isConnected = false;
+            
             var client = new MqttClientFactory().CreateMqttClient(UnwrapOptions(options));
-
             var wrappedClient = new MQTTClient(client);
 
             var observable = Observable.Create<IMQTTMessage>(
@@ -79,7 +80,11 @@ namespace MQTTClientRx.Service
                             obs.OnError,
                             obs.OnCompleted);
 
-                    await client.ConnectAsync(WrapWillMessage(willMessage));
+                    if (!isConnected)
+                    {
+                        await client.ConnectAsync(WrapWillMessage(willMessage));
+                        isConnected = true;
+                    }
 
                     return new CompositeDisposable(
                         CleanUp(client), 
