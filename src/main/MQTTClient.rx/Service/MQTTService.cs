@@ -28,7 +28,6 @@ namespace MQTTClientRx.Service
 
             var wrappedClient = new MQTTClient(client);
 
-
             var observable = Observable.Create<IMQTTMessage>(
                 async obs =>
                 {
@@ -49,14 +48,8 @@ namespace MQTTClientRx.Service
 
                                 obs.OnNext(message);
                             },
-                            ex =>
-                            {
-                                obs.OnError(ex);
-                            },
-                            () =>
-                            {
-                                obs.OnCompleted();
-                            });
+                            obs.OnError,
+                            obs.OnCompleted);
 
                     var disposableConnect = Observable.FromEventPattern(
                             h => client.Connected += h,
@@ -71,14 +64,8 @@ namespace MQTTClientRx.Service
                                     await wrappedClient.SubscribeAsync(topicFilters);
                                 }
                             },
-                            ex =>
-                            {
-                                obs.OnError(ex);
-                            },
-                            () =>
-                            {
-                                obs.OnCompleted();
-                            });
+                            obs.OnError,
+                            obs.OnCompleted);
                     
                     var disposableDisconnect = Observable.FromEventPattern(
                             h => client.Disconnected += h,
@@ -89,24 +76,17 @@ namespace MQTTClientRx.Service
                                 Debug.WriteLine("Disconnected");
                                 obs.OnCompleted();
                             },
-                            ex =>
-                            {
-                                obs.OnError(ex);
-                            },
-                            () =>
-                            {
-                                obs.OnCompleted();
-                            });
+                            obs.OnError,
+                            obs.OnCompleted);
 
                     await client.ConnectAsync(WrapWillMessage(willMessage));
-
 
                     return new CompositeDisposable(
                         CleanUp(client), 
                         disposableMessage, 
                         disposableConnect,
                         disposableDisconnect);
-                });
+                }).Publish().RefCount();
             
             return (observable, wrappedClient);
         }
@@ -136,17 +116,16 @@ namespace MQTTClientRx.Service
                 CleanSession = wrappedOptions.CleanSession,
                 ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
                 Port = wrappedOptions.Port,
-                // TODO this is a bit wierd, why can TlsOptions be set? Ask Christian
-                //TlsOptions = new MqttClientTlsOptions
-                //{
-                //    Certificates = options.TlsOptions.Certificates.ToList(),
-                //    CheckCertificateRevocation = options.TlsOptions.CheckCertificateRevocation,
-                //    UseTls = options.TlsOptions.UseTls
-                //}
+                TlsOptions =
+                {
+                    UseTls = wrappedOptions.UseTls,
+                    CheckCertificateRevocation = wrappedOptions.CheckCertificateRevocation,
+                    Certificates = wrappedOptions.Certificates?.ToList() ?? new List<byte[]>()
+                },
                 UserName = wrappedOptions.UserName,
                 Password = wrappedOptions.Password,
                 KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan) ? TimeSpan.FromSeconds(5) : wrappedOptions.KeepAlivePeriod,
-                DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan) ? TimeSpan.FromSeconds(100) : wrappedOptions.DefaultCommunicationTimeout
+                DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan) ? TimeSpan.FromSeconds(10) : wrappedOptions.DefaultCommunicationTimeout
             };
         }
 

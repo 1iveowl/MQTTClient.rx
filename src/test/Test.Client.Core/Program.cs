@@ -78,7 +78,7 @@ namespace Test.Client.Core
 
 
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
             var newMessage = new MQTTMessage
             {
@@ -90,19 +90,49 @@ namespace Test.Client.Core
 
             await MQTTService.client.PublishAsync(newMessage);
 
+            var disp2 = MQTTService.observableMessage.Subscribe(
+                msg =>
+                {
+                    if (msg.Topic.Contains("EFM"))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+
+                    Console.WriteLine($"{Encoding.UTF8.GetString(msg.Payload)}, " +
+                                      $"{msg.QualityOfServiceLevel.ToString()}, " +
+                                      $"Retain: {msg.Retain}, " +
+                                      $"Topic: {msg.Topic}");
+                },
+                ex =>
+                {
+                    Console.WriteLine($"{ex.Message} : inner {ex.InnerException.Message}");
+                },
+                () =>
+                {
+                    Console.WriteLine("Completed...");
+                });
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            await MQTTService.client.UnsubscribeAsync(new[] {topic2});
+
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            
             //await MQTTService.client.UnsubscribeAsync(new [] {topic1});
 
             //await Task.Delay(TimeSpan.FromSeconds(2));
-            //await MQTTService.client.UnsubscribeAsync(new[] {topic2});
-            //await Task.Delay(TimeSpan.FromSeconds(2));
-
-
-
             
+
 
             //await MQTTService.client.SubscribeAsync(new[] { topic2 });
 
-            //await Task.Delay(TimeSpan.FromSeconds(2));
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            
+            _disposable.Dispose();
             //var topic2a = new TopicFilter
             //{
             //    QualityOfServiceLevel = QoSLevel.ExactlyOnce,
