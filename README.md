@@ -1,8 +1,6 @@
 # MQTT Client Rx
 
-[![NuGet Badge](https://buildstats.info/nuget/SocketLite.PCL)](https://www.nuget.org/packages/SocketLite.PCL)
-
-[![NuGet](https://img.shields.io/badge/nuget-2.0.30_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/SocketLite.PCL/2.0.20)
+[![NuGet Badge](https://buildstats.info/nuget/MQTTClientRx)](https://www.nuget.org/packages/MQTTClientRx)
 
 *Please star this project if you find it useful. Thank you!*
 
@@ -91,13 +89,13 @@ var mqttClientOptions = new Options
 var topic1 = new TopicFilter
 {
     QualityOfServiceLevel = QoSLevel.AtMostOnce,
-    Topic = "PP/#" // You might want to try something else if there is nothing published to this topiv
+    Topic = "PP/#" // You might want to try something else if there is nothing published to this topic
 };
 
 var topic2 = new TopicFilter
 {
     QualityOfServiceLevel = QoSLevel.AtMostOnce,
-    Topic = "EFM/#" // You might want to try something else if there is nothing published to this topiv
+    Topic = "EFM/#" // You might want to try something else if there is nothing published to this topic
 };
 
 ITopicFilter[] topicFilters = {

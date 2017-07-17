@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>MQTTClientRx</id>
+    <version>0</version>
+    <title>MQTT Client Rx - .NET Standard 1.3</title>
+    <authors>Jasper H. Bojsen</authors>
+    <owners>Jasper H. Bojsen</owners>
+    <licenseUrl>https://github.com/1iveowl/MQTTClient.rx/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/1iveowl/MQTTClient.rx/</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      MQTT Client utilizing the power of Reactive Extensions</description>
+    <releaseNotes>Release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>mqtt client rx reactivex netstandard</tags>
+        <dependencies>
+          <dependency id="MQTTnet" version="2.1.4"/>
+          <dependency id="System.Reactive" version="3.1.1"/>
+          <dependency id="System.ValueTuple" version="4.3.1"/>
+        </dependencies>
+  </metadata>
+  <files>
+        <file src="..\main\MQTTClient.rx\bin\Release\netstandard1.3\MQTTClientRx.*" target="lib\netstandard1.3\" />
+        <file src="..\main\MQTTClient.rx\bin\Release\netstandard1.3\IMQTTClientRx.*" target="lib\netstandard1.3\" />
+    </files>
+</package>
