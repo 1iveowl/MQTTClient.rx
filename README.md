@@ -24,7 +24,7 @@ To use this library you need to start by creating four classes that each impleme
 - `MQTTMessage`
 - `IClientOptions`
 - `ITopicFilter`
-- `IWillMessage`.
+- `IWillMessage`
 
 Like this:
 ```csharp
