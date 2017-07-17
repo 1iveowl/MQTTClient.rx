@@ -10,6 +10,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{649F2989-3C9B-47BA-81AE-B38C830D75CA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{990BCED9-A674-4D51-A33B-E2553CE1A3B0}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\build.ps1 = ..\build\build.ps1
+		..\build\MQTTClientRx.nuspec = ..\build\MQTTClientRx.nuspec
+		..\build\publish.ps1 = ..\build\publish.ps1
+		..\build\publishLocal.ps1 = ..\build\publishLocal.ps1
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{61B0A133-C42A-4F94-82DF-1C3C3F703761}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTClientRx", "MQTTClient.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMQTTClientRx", "..\interface\IMQTTClient.rx\IMQTTClientRx.csproj", "{27FF1C81-7DF4-4A68-B169-A4F8BC9BC2D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Client.Core", "..\test\Test.Client.Core\Test.Client.Core.csproj", "{4B8E746E-A4B8-4F10-92C6-7F78C2665025}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Client.Core", "..\test\Test.Client.Core\Test.Client.Core.csproj", "{4B8E746E-A4B8-4F10-92C6-7F78C2665025}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

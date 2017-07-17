@@ -53,7 +53,7 @@ namespace Test.Client.Core
             _disposable = MQTTService.observableMessage.Subscribe(
                 msg =>
                 {
-                    if (msg.Topic.Contains("PP"))
+                    if (msg.Topic.Contains("EFM"))
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                     }
@@ -90,7 +90,7 @@ namespace Test.Client.Core
 
             await MQTTService.client.PublishAsync(newMessage);
 
-            await MQTTService.client.UnsubscribeAsync(new [] {topic1});
+            //await MQTTService.client.UnsubscribeAsync(new [] {topic1});
 
             //await Task.Delay(TimeSpan.FromSeconds(2));
             //await MQTTService.client.UnsubscribeAsync(new[] {topic2});
