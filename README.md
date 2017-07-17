@@ -2,24 +2,25 @@
 
 [![NuGet Badge](https://buildstats.info/nuget/MQTTClientRx)](https://www.nuget.org/packages/MQTTClientRx)
 
+[![System.Reactive](http://img.shields.io/badge/Rx-v3.1.1-ff69b4.svg)](http://reactivex.io/) 
+
 *Please star this project if you find it useful. Thank you!*
 
 ## Credits
 This project is based on [MQTTnet](https://github.com/chkr1011/MQTTnet) by Christian Kratky. Without his work, this library would not be. All this library really is, is a Rx wrapper around MQTTnet. 
 
 ## Why this library
-[MQTT](http://mqtt.org/) and [Reactive Extensions](http://reactivex.io/) (aka. ReactiveX or just Rx) are perfect for each other! 
-
-Rx is an API for asynchronous programming
-with observable streams. MQTT is a protocol that produces asynchronous streams.
-
-That is why I created this library!
+[MQTT](http://mqtt.org/) and [Reactive Extensions](http://reactivex.io/) (aka. ReactiveX or just Rx) are a perfect for each other! Rx is an API for asynchronous programming
+with observable streams, while MQTT is a protocol that produces asynchronous streams.
 
 ## How to use
-Using the library is reallly easy. Rx makes is easy to write code in a declarative manager that is IMHO more elegant to use than Events. But first some house keeping. 
+Using the library is easy. Rx makes is easy to write code in a declarative manager which in IMHO is more elegant that the alternatives. 
+
 
 ### House keeping
-The library is very flexible and is created uing Interface Driven Development. To use this library you need to create a set of classes that each implement these four interfaces: 
+First some house keeping. The library is very flexible and is created using Interface Driven Development. 
+
+To use this library you need to start by creating four classes that each implement these four interfaces: 
 - `MQTTMessage`
 - `IClientOptions`
 - `ITopicFilter`
@@ -67,9 +68,11 @@ internal class WillMessage : IWillMessage
     public bool Retain { get; internal set; }
 }
 ```
-Implemting these classes is easily done, and by not using concrete classes in the library.
+Implemting these classes is easily done, and by not using concrete classes in the library you have the flexibility to how to use and implement these classes. Also you can encapsulate as you see fit. It might seem a bit counter intiitive at first, but there is added benefit to the flexibility this provides as your project grow.
 
 ### Observing MQTT
+Now you are ready to start using this library.
+
 Here is an example of using the MQTT Client Rx:
 #### Using
 ```csharp
@@ -89,13 +92,13 @@ var mqttClientOptions = new Options
 var topic1 = new TopicFilter
 {
     QualityOfServiceLevel = QoSLevel.AtMostOnce,
-    Topic = "PP/#" // You might want to try something else if there is nothing published to this topic
+    Topic = "PP/#" // You might want to try something else if there is nothing is published to this topic in the test server at the time of testing this.
 };
 
 var topic2 = new TopicFilter
 {
     QualityOfServiceLevel = QoSLevel.AtMostOnce,
-    Topic = "EFM/#" // You might want to try something else if there is nothing published to this topic
+    Topic = "EFM/#" // You might want to try something else if there is nothing is published to this topic in the test server at the time of testing this.
 };
 
 ITopicFilter[] topicFilters = {
@@ -126,7 +129,7 @@ _disposable = MQTTService.observableMessage.Subscribe(
     },
     ex =>
     {
-        // If an exception happens add code here
+        // If an exception happens they can be manager here
         Console.WriteLine($"{ex.Message} : inner {ex.InnerException.Message}");
     },
     () =>
@@ -140,13 +143,13 @@ _disposable = MQTTService.observableMessage.Subscribe(
 
 Subscribing to other Topic Filters is easy:
 ```csharp
-MQTTService.client.SubscribeAsync(new[] { "My/Filter" });
+MQTTService.client.SubscribeAsync(new[] { "My/NewFilter" });
 ```
 You can subscribe to Topic filters after creating the MQTTService.
 #### Unsubscribing to Topic Filteres
 Unsubscribing to other Topic Filters is easy:
 ```csharp
-MQTTService.client.UnsubscribeAsync(new[] { "My/OtherFilter" });
+MQTTService.client.UnsubscribeAsync(new[] { "My/NewFilter" });
 ```
 You can unsubscribe to Topic filters after creating the MQTTService.
 #### Publish
@@ -162,4 +165,4 @@ var newMessage = new MQTTMessage
 
 await MQTTService.client.PublishAsync(newMessage);
 ```
-You can publishmessages after creating the MQTTService.
+You can publish messages after creating the MQTTService.
