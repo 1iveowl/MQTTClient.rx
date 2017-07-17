@@ -4,13 +4,11 @@ using System.Text;
 
 namespace IMQTTClientRx.Model
 {
-    public interface IClientOptions
+    public interface IClientOptions : ITlsOptions
     {
         string Server { get;}
 
         int? Port { get;}
-
-        //IMQTTClientTlsOptions TlsOptions { get; }
 
         string UserName { get;}
 

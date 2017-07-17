@@ -48,6 +48,11 @@ internal class Options : IClientOptions
     public bool CleanSession { get; internal set; }
     public TimeSpan KeepAlivePeriod { get; internal set; }
     public TimeSpan DefaultCommunicationTimeout { get; internal set; }
+
+	// TlsOptions
+    public bool UseTls { get; internal set; }
+    public bool CheckCertificateRevocation { get; internal set; }
+    public IEnumerable<byte[]> Certificates { get; internal set; }
 }
 ```
 
