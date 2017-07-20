@@ -87,30 +87,29 @@ namespace MQTTClientRx.Service
                     }
 
                     return new CompositeDisposable(
-                        CleanUp(client), 
                         disposableMessage, 
                         disposableConnect,
                         disposableDisconnect);
-                }).Publish().RefCount();
+                })
+                .Finally(async () =>
+                {
+                    await CleanUp(client);
+                })
+                .Publish().RefCount();
             
             return (observable, wrappedClient);
         }
 
-        private IDisposable CleanUp(MqttClient client)
+        private async Task CleanUp(MqttClient client)
         {
-            return Disposable.Create(
-                async () =>
-                {
-                    if (client.IsConnected)
-                    {
-                        var disconnectTask = client.DisconnectAsync();
-                        var timeOutTask = Task.Delay(TimeSpan.FromSeconds(5));
 
-                        var result = await Task.WhenAny(disconnectTask, timeOutTask).ConfigureAwait(false);
+            var disconnectTask = client.DisconnectAsync();
+            var timeOutTask = Task.Delay(TimeSpan.FromSeconds(5));
+
+            var result = await Task.WhenAny(disconnectTask, timeOutTask).ConfigureAwait(false);
                         
-                        Debug.WriteLine($"Disconnected Successfully: {result == disconnectTask}");
-                    }
-                });
+            Debug.WriteLine($"Disconnected Successfully: {result == disconnectTask}");
+
         }
         
         private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions)

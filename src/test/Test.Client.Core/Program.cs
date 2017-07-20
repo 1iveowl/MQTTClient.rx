@@ -9,15 +9,18 @@ namespace Test.Client.Core
 {
     class Program
     {
-        private static IDisposable _disposable;
+        private static IDisposable _disp1;
+        private static IDisposable _disp2;
         static void Main(string[] args)
         {
             Start();
 
             Console.ReadLine();
-            _disposable.Dispose();
+            _disp1.Dispose();
+            _disp2.Dispose();
             Task.Delay(TimeSpan.FromSeconds(1));
             Console.WriteLine("Press any key to exit...");
+            Console.ReadLine();
         }
 
         static async void Start()
@@ -50,7 +53,7 @@ namespace Test.Client.Core
 
             var MQTTService = mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters);
             
-            _disposable = MQTTService.observableMessage.Subscribe(
+            _disp1 = MQTTService.observableMessage.Subscribe(
                 msg =>
                 {
                     if (msg.Topic.Contains("EFM"))
@@ -90,7 +93,7 @@ namespace Test.Client.Core
 
             await MQTTService.client.PublishAsync(newMessage);
 
-            var disp2 = MQTTService.observableMessage.Subscribe(
+            _disp2 = MQTTService.observableMessage.Subscribe(
                 msg =>
                 {
                     if (msg.Topic.Contains("EFM"))
@@ -132,7 +135,7 @@ namespace Test.Client.Core
 
             await Task.Delay(TimeSpan.FromSeconds(5));
             
-            _disposable.Dispose();
+            _disp1.Dispose();
             //var topic2a = new TopicFilter
             //{
             //    QualityOfServiceLevel = QoSLevel.ExactlyOnce,
