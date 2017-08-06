@@ -12,9 +12,9 @@ namespace MQTTClientRx.Model
 {
     internal class MQTTClient : IMQTTClient
     {
-        private readonly MqttClient _mqttClient;
+        private readonly IMqttClient _mqttClient;
 
-        internal MQTTClient(MqttClient client)
+        internal MQTTClient(IMqttClient client)
         {
             _mqttClient = client;
         }

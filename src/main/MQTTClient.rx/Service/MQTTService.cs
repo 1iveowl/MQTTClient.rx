@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
+using MQTTClientRx.Extension;
 using MQTTClientRx.Model;
 using MQTTnet;
 using MQTTnet.Core;
@@ -18,7 +19,8 @@ namespace MQTTClientRx.Service
 {
     public class MQTTService : IMQTTService
     {
-        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client) 
+
+        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client, Task cleanUp) 
             CreateObservableMQTTServiceAsync(
                 IClientOptions options, 
                 IEnumerable<ITopicFilter> topicFilters = null,
@@ -87,29 +89,34 @@ namespace MQTTClientRx.Service
                     }
 
                     return new CompositeDisposable(
+                        Disposable.Create(() =>
+                        {
+                            CleanUp(client).Wait();
+                        }),
                         disposableMessage, 
                         disposableConnect,
                         disposableDisconnect);
                 })
-                .Finally(async () =>
+                .FinallyAsync(async () =>
                 {
                     await CleanUp(client);
                 })
                 .Publish().RefCount();
             
-            return (observable, wrappedClient);
+            return (observable, wrappedClient, CleanUp(client));
         }
 
-        private async Task CleanUp(MqttClient client)
+        private async Task CleanUp(IMqttClient client)
         {
+            if (client.IsConnected)
+            {
+                var disconnectTask = client.DisconnectAsync();
+                var timeOutTask = Task.Delay(TimeSpan.FromSeconds(5));
 
-            var disconnectTask = client.DisconnectAsync();
-            var timeOutTask = Task.Delay(TimeSpan.FromSeconds(5));
+                var result = await Task.WhenAny(disconnectTask, timeOutTask).ConfigureAwait(false);
 
-            var result = await Task.WhenAny(disconnectTask, timeOutTask).ConfigureAwait(false);
-                        
-            Debug.WriteLine($"Disconnected Successfully: {result == disconnectTask}");
-
+                Debug.WriteLine($"Disconnected Successfully: {result == disconnectTask}");
+            }
         }
         
         private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions)
