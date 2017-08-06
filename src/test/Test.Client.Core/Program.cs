@@ -4,42 +4,50 @@ using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using MQTTClientRx.Service;
 using Test.Client.Core.Model;
+using MQTTClientRx.Extension;
+using MQTTClientRx.Model;
 
 namespace Test.Client.Core
 {
     class Program
     {
-        private static IDisposable _disposable;
-        static void Main(string[] args)
+        private static IDisposable _disp1;
+        private static IDisposable _disp2;
+        static async Task Main(string[] args)
         {
-            Start();
+            await Start();
 
             Console.ReadLine();
-            _disposable.Dispose();
-            Task.Delay(TimeSpan.FromSeconds(1));
+            //await _disp1.DisposeAsync();
+            //await _disp2.DisposeAsync();
+            await Task.Delay(TimeSpan.FromSeconds(1));
             Console.WriteLine("Press any key to exit...");
+            Console.ReadLine();
         }
 
-        static async void Start()
+        static async Task Start()
         {
             var mqttService = new MQTTService();
 
             var mqttClientOptions = new Options
             {
-                Server = "test.mosquitto.org",
+                //Server = "test.mosquitto.org",
+                Server = "broker.hivemq.com",
                 Port = 1883
             };
 
             var topic1 = new TopicFilter
             {
                 QualityOfServiceLevel = QoSLevel.ExactlyOnce,
-                Topic = "PP/#"
+                //Topic = "PP/#"
+                Topic = "scs/#"
             };
 
             var topic2 = new TopicFilter
             {
                 QualityOfServiceLevel = QoSLevel.ExactlyOnce,
-                Topic = "EFM/#"
+                //Topic = "EFM/#"
+                Topic = "/kobi22/#"
             };
 
             ITopicFilter[] topicFilters = {
@@ -49,8 +57,8 @@ namespace Test.Client.Core
             };
 
             var MQTTService = mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters);
-            
-            _disposable = MQTTService.observableMessage.Subscribe(
+
+            _disp1 = MQTTService.observableMessage.Subscribe(
                 msg =>
                 {
                     if (msg.Topic.Contains("EFM"))
@@ -61,7 +69,7 @@ namespace Test.Client.Core
                     {
                         Console.ForegroundColor = ConsoleColor.Blue;
                     }
-                    
+
                     Console.WriteLine($"{Encoding.UTF8.GetString(msg.Payload)}, " +
                                       $"{msg.QualityOfServiceLevel.ToString()}, " +
                                       $"Retain: {msg.Retain}, " +
@@ -76,8 +84,6 @@ namespace Test.Client.Core
                     Console.WriteLine("Completed...");
                 });
 
-
-
             await Task.Delay(TimeSpan.FromSeconds(5));
 
             var newMessage = new MQTTMessage
@@ -90,7 +96,7 @@ namespace Test.Client.Core
 
             await MQTTService.client.PublishAsync(newMessage);
 
-            var disp2 = MQTTService.observableMessage.Subscribe(
+            _disp2 = MQTTService.observableMessage.Subscribe(
                 msg =>
                 {
                     if (msg.Topic.Contains("EFM"))
@@ -130,9 +136,15 @@ namespace Test.Client.Core
 
             //await MQTTService.client.SubscribeAsync(new[] { topic2 });
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(2));
             
-            _disposable.Dispose();
+            _disp2.Dispose();
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            _disp1.Dispose();
+
+            await Task.Delay(TimeSpan.FromSeconds(30));
             //var topic2a = new TopicFilter
             //{
             //    QualityOfServiceLevel = QoSLevel.ExactlyOnce,
