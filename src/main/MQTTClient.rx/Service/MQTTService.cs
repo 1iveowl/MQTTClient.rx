@@ -20,7 +20,7 @@ namespace MQTTClientRx.Service
     public class MQTTService : IMQTTService
     {
 
-        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client, Task cleanUp) 
+        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client) 
             CreateObservableMQTTServiceAsync(
                 IClientOptions options, 
                 IEnumerable<ITopicFilter> topicFilters = null,
@@ -103,7 +103,7 @@ namespace MQTTClientRx.Service
                 })
                 .Publish().RefCount();
             
-            return (observable, wrappedClient, CleanUp(client));
+            return (observable, wrappedClient);
         }
 
         private async Task CleanUp(IMqttClient client)

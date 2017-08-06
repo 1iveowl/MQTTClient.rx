@@ -83,12 +83,6 @@ namespace Test.Client.Core
                 {
                     Console.WriteLine("Completed...");
                 });
-                //.ToAsyncDisposal(async () =>
-                //{
-                //    await MQTTService.cleanUp;
-                //});
-
-
 
             await Task.Delay(TimeSpan.FromSeconds(5));
 
@@ -127,10 +121,6 @@ namespace Test.Client.Core
                 {
                     Console.WriteLine("Completed...");
                 });
-                //.ToAsyncDisposal(async () =>
-                //{
-                //    await MQTTService.cleanUp;
-                //}); ;
 
             await Task.Delay(TimeSpan.FromSeconds(2));
 

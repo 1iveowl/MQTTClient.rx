@@ -7,7 +7,7 @@ namespace IMQTTClientRx.Service
 {
     public interface IMQTTService
     {
-        (IObservable<IMQTTMessage> observableMessage, Model.IMQTTClient client, Task cleanUp) CreateObservableMQTTServiceAsync(
+        (IObservable<IMQTTMessage> observableMessage, Model.IMQTTClient client) CreateObservableMQTTServiceAsync(
             IClientOptions options, 
             IEnumerable<ITopicFilter> topicFilters = null,
             IWillMessage willMessage = null);
