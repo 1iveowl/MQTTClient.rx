@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       MQTT Client utilizing the power of Reactive Extensions</description>
-    <releaseNotes>Release</releaseNotes>
+    <releaseNotes>Added support for protocol version. Added native version .Net Standard 2.0</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>mqtt client rx reactivex netstandard14 netstandard20</tags>
     <dependencies>
