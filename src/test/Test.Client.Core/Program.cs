@@ -127,14 +127,15 @@ namespace Test.Client.Core
             await MQTTService.client.UnsubscribeAsync(new[] {topic2});
 
             await Task.Delay(TimeSpan.FromSeconds(5));
-            
+
             //await MQTTService.client.UnsubscribeAsync(new [] {topic1});
 
             //await Task.Delay(TimeSpan.FromSeconds(2));
-            
+
 
 
             //await MQTTService.client.SubscribeAsync(new[] { topic2 });
+
 
             await Task.Delay(TimeSpan.FromSeconds(2));
             

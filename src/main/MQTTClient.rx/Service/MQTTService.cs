@@ -13,96 +13,90 @@ using MQTTnet;
 using MQTTnet.Core;
 using MQTTnet.Core.Client;
 using MQTTnet.Core.Protocol;
+using MQTTnet.Core.Serializer;
+
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MQTTClientRx.Service
 {
     public class MQTTService : IMQTTService
     {
-
-        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client) 
+        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client)
             CreateObservableMQTTServiceAsync(
-                IClientOptions options, 
+                IClientOptions options,
                 IEnumerable<ITopicFilter> topicFilters = null,
                 IWillMessage willMessage = null)
         {
             var isConnected = false;
-            
+
             var client = new MqttClientFactory().CreateMqttClient(UnwrapOptions(options));
             var wrappedClient = new MQTTClient(client);
 
             var observable = Observable.Create<IMQTTMessage>(
-                async obs =>
-                {
-                    var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
-                            h => client.ApplicationMessageReceived += h,
-                            h => client.ApplicationMessageReceived -= h)
-                        .Subscribe(
-                            msgEvent =>
-                            {
-                                var message = new MQTTMessage
-                                {
-                                    Payload = msgEvent.EventArgs.ApplicationMessage.Payload,
-                                    Retain = msgEvent.EventArgs.ApplicationMessage.Retain,
-                                    QualityOfServiceLevel =
-                                        (QoSLevel) msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
-                                    Topic = msgEvent.EventArgs.ApplicationMessage.Topic
-                                };
-
-                                obs.OnNext(message);
-                            },
-                            obs.OnError,
-                            obs.OnCompleted);
-
-                    var disposableConnect = Observable.FromEventPattern(
-                            h => client.Connected += h,
-                            h => client.Connected -= h)
-                        .Subscribe(
-                            async connectEvent =>
-                            {
-
-                                Debug.WriteLine("Connected");
-                                if (topicFilters?.Any() ?? false)
-                                {
-                                    await wrappedClient.SubscribeAsync(topicFilters);
-                                }
-                            },
-                            obs.OnError,
-                            obs.OnCompleted);
-                    
-                    var disposableDisconnect = Observable.FromEventPattern(
-                            h => client.Disconnected += h,
-                            h => client.Disconnected -= h)
-                        .Subscribe(
-                            disconnectEvent =>
-                            {
-                                Debug.WriteLine("Disconnected");
-                                obs.OnCompleted();
-                            },
-                            obs.OnError,
-                            obs.OnCompleted);
-
-                    if (!isConnected)
+                    async obs =>
                     {
-                        await client.ConnectAsync(WrapWillMessage(willMessage));
-                        isConnected = true;
-                    }
+                        var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
+                                h => client.ApplicationMessageReceived += h,
+                                h => client.ApplicationMessageReceived -= h)
+                            .Subscribe(
+                                msgEvent =>
+                                {
+                                    var message = new MQTTMessage
+                                    {
+                                        Payload = msgEvent.EventArgs.ApplicationMessage.Payload,
+                                        Retain = msgEvent.EventArgs.ApplicationMessage.Retain,
+                                        QualityOfServiceLevel =
+                                            (QoSLevel) msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
+                                        Topic = msgEvent.EventArgs.ApplicationMessage.Topic
+                                    };
 
-                    return new CompositeDisposable(
-                        Disposable.Create(() =>
+                                    obs.OnNext(message);
+                                },
+                                obs.OnError,
+                                obs.OnCompleted);
+
+                        var disposableConnect = Observable.FromEventPattern(
+                                h => client.Connected += h,
+                                h => client.Connected -= h)
+                            .Subscribe(
+                                async connectEvent =>
+                                {
+                                    Debug.WriteLine("Connected");
+                                    if (topicFilters?.Any() ?? false)
+                                    {
+                                        await wrappedClient.SubscribeAsync(topicFilters);
+                                    }
+                                },
+                                obs.OnError,
+                                obs.OnCompleted);
+
+                        var disposableDisconnect = Observable.FromEventPattern(
+                                h => client.Disconnected += h,
+                                h => client.Disconnected -= h)
+                            .Subscribe(
+                                disconnectEvent =>
+                                {
+                                    Debug.WriteLine("Disconnected");
+                                    obs.OnCompleted();
+                                },
+                                obs.OnError,
+                                obs.OnCompleted);
+
+                        if (!isConnected)
                         {
-                            CleanUp(client).Wait();
-                        }),
-                        disposableMessage, 
-                        disposableConnect,
-                        disposableDisconnect);
-                })
-                .FinallyAsync(async () =>
-                {
-                    await CleanUp(client);
-                })
+                            await client.ConnectAsync(WrapWillMessage(willMessage));
+                            isConnected = true;
+                        }
+
+                        return new CompositeDisposable(
+                            Disposable.Create(() => { CleanUp(client).Wait(); }),
+                            disposableMessage,
+                            disposableConnect,
+                            disposableDisconnect);
+                    })
+                .FinallyAsync(async () => { await CleanUp(client); })
                 .Publish().RefCount();
-            
+
             return (observable, wrappedClient);
         }
 
@@ -118,7 +112,7 @@ namespace MQTTClientRx.Service
                 Debug.WriteLine($"Disconnected Successfully: {result == disconnectTask}");
             }
         }
-        
+
         private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions)
         {
             return new MqttClientOptions
@@ -135,8 +129,14 @@ namespace MQTTClientRx.Service
                 },
                 UserName = wrappedOptions.UserName,
                 Password = wrappedOptions.Password,
-                KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan) ? TimeSpan.FromSeconds(5) : wrappedOptions.KeepAlivePeriod,
-                DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan) ? TimeSpan.FromSeconds(10) : wrappedOptions.DefaultCommunicationTimeout
+                KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                    ? TimeSpan.FromSeconds(5)
+                    : wrappedOptions.KeepAlivePeriod,
+                DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                    ? TimeSpan.FromSeconds(10)
+                    : wrappedOptions.DefaultCommunicationTimeout,
+                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
+
             };
         }
 
@@ -145,12 +145,24 @@ namespace MQTTClientRx.Service
             if (message != null)
             {
                 return new MqttApplicationMessage(
-                    message.Topic, 
+                    message.Topic,
                     message.Payload,
-                    (MqttQualityOfServiceLevel)message.QualityOfServiceLevel, 
+                    (MqttQualityOfServiceLevel) message.QualityOfServiceLevel,
                     message.Retain);
             }
             return null;
+        }
+
+        private static MqttProtocolVersion UnwrapProtocolVersion(ProtocolVersion protocolVersion)
+        {
+            switch (protocolVersion)
+            {
+                case ProtocolVersion.ver310:
+                    return MqttProtocolVersion.V310;
+                case ProtocolVersion.ver311:
+                    return MqttProtocolVersion.V311;
+                default: throw new ArgumentException(protocolVersion.ToString());
+            }
         }
     }
 }
