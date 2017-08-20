@@ -15,5 +15,6 @@ namespace Test.Client.Core.Model
         public bool CleanSession { get; internal set; }
         public TimeSpan KeepAlivePeriod { get; internal set; }
         public TimeSpan DefaultCommunicationTimeout { get; internal set; }
+        public ProtocolVersion ProtocolVersion { get; internal set; }
     }
 }

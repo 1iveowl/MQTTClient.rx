@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -11,12 +11,12 @@
 
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="3.1.1" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClientRx.csproj" />
-    <ProjectReference Include="..\..\main\MQTTClient.rx\MQTTClientRx.csproj" />
+    <ProjectReference Include="..\..\main\MQTTClientRx.netstandard20\MQTTClientRx.netstandard20.csproj" />
   </ItemGroup>
 
 </Project>

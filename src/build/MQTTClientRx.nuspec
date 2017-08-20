@@ -14,15 +14,27 @@
       MQTT Client utilizing the power of Reactive Extensions</description>
     <releaseNotes>Release</releaseNotes>
     <copyright>Copyright 2017</copyright>
-    <tags>mqtt client rx reactivex netstandard</tags>
-        <dependencies>
-          <dependency id="MQTTnet" version="2.1.5"/>
+    <tags>mqtt client rx reactivex netstandard14 netstandard20</tags>
+    <dependencies>
+      <group targetFramework="netstandard1.3">
+  
+          <dependency id="MQTTnet" version="2.2.0"/>
           <dependency id="System.Reactive" version="3.1.1"/>
-          <dependency id="System.ValueTuple" version="4.3.1"/>
-        </dependencies>
+          <dependency id="System.ValueTuple" version="4.4.0"/>
+ 
+      </group>
+    
+      <group targetFramework="netstandard2.0">
+          <dependency id="MQTTnet" version="2.2.0"/>
+          <dependency id="System.Reactive" version="3.1.1"/>
+      </group>
+    </dependencies>
   </metadata>
   <files>
         <file src="..\main\MQTTClient.rx\bin\Release\netstandard1.3\MQTTClientRx.*" target="lib\netstandard1.3\" />
         <file src="..\main\MQTTClient.rx\bin\Release\netstandard1.3\IMQTTClientRx.*" target="lib\netstandard1.3\" />
+  
+        <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\MQTTClientRx.*" target="lib\netstandard2.0\" />
+        <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\IMQTTClientRx.*" target="lib\netstandard2.0\" />
     </files>
 </package>
