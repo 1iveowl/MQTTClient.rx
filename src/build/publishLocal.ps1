@@ -9,4 +9,4 @@ else {
 
 .\build.ps1 $version
 
-nuget.exe push -Source "1iveowlNuGetRepo" -ApiKey key ".\NuGet\MQTTClientRx.$version.symbols.nupkg"
+c:\tools\nuget\nuget.exe push -Source "1iveowlNuGetRepo" -ApiKey key ".\NuGet\MQTTClientRx.$version.symbols.nupkg"

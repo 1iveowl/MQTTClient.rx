@@ -9,4 +9,4 @@ else {
 
 .\build.ps1 $version
 
-Nuget.exe push ".\NuGet\MQTTClientRx.$version.symbols.nupkg" -Source https://www.nuget.org
+c:ex\tools\nuget\Nuget.exe push ".\NuGet\MQTTClientRx.$version.symbols.nupkg" -Source https://www.nuget.org

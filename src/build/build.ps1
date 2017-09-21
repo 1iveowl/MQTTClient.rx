@@ -15,4 +15,4 @@ $msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBui
 
 Remove-Item .\NuGet -Force -Recurse
 New-Item -ItemType Directory -Force -Path .\NuGet
-NuGet.exe pack MQTTClientRx.nuspec -Verbosity detailed -Symbols -OutputDir "NuGet" -Version $version
+c:\tools\nuget\NuGet.exe pack MQTTClientRx.nuspec -Verbosity detailed -Symbols -OutputDir "NuGet" -Version $version
