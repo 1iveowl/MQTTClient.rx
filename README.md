@@ -49,6 +49,7 @@ internal class Options : IClientOptions
     public TimeSpan KeepAlivePeriod { get; internal set; }
     public TimeSpan DefaultCommunicationTimeout { get; internal set; }
     public ProtocolVersion ProcolVersion {get; internal set;}
+	public ConnectionType ConnectionType { get; internal set; }
 
 	// TlsOptions
     public bool UseTls { get; internal set; }

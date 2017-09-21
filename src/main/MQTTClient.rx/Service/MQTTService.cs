@@ -135,7 +135,9 @@ namespace MQTTClientRx.Service
                 DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
                     ? TimeSpan.FromSeconds(10)
                     : wrappedOptions.DefaultCommunicationTimeout,
-                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
+                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion),
+                ConnectionType = UnwrapConnectionType(wrappedOptions.ConnectionType)
+                
 
             };
         }
@@ -157,11 +159,19 @@ namespace MQTTClientRx.Service
         {
             switch (protocolVersion)
             {
-                case ProtocolVersion.ver310:
-                    return MqttProtocolVersion.V310;
-                case ProtocolVersion.ver311:
-                    return MqttProtocolVersion.V311;
+                case ProtocolVersion.ver310: return MqttProtocolVersion.V310;
+                case ProtocolVersion.ver311: return MqttProtocolVersion.V311;
                 default: throw new ArgumentException(protocolVersion.ToString());
+            }
+        }
+
+        private static MqttConnectionType UnwrapConnectionType(ConnectionType connectionType)
+        {
+            switch (connectionType)
+            {
+                case ConnectionType.Tcp: return MqttConnectionType.Tcp;
+                case ConnectionType.WebSocket: return MqttConnectionType.Ws;
+                default: throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null);
             }
         }
     }

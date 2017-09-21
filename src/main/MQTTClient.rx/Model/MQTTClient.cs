@@ -26,12 +26,12 @@ namespace MQTTClientRx.Model
 
         public async Task UnsubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
         {
-            await _mqttClient.Unsubscribe(WrapTopicFiltersToString(topicFilters));
+            await _mqttClient.UnsubscribeAsync(WrapTopicFiltersToString(topicFilters));
         }
 
         public async Task UnsubscribeAsync(string[] topics)
         {
-            await _mqttClient.Unsubscribe(topics);
+            await _mqttClient.UnsubscribeAsync(topics);
         }
 
         public async Task PublishAsync(IMQTTMessage message)

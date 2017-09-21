@@ -22,5 +22,7 @@ namespace IMQTTClientRx.Model
 
         TimeSpan DefaultCommunicationTimeout { get;}
         ProtocolVersion ProtocolVersion { get; }
+
+        ConnectionType ConnectionType { get; }
     }
 }
