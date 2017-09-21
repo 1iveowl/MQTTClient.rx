@@ -12,20 +12,20 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
       MQTT Client utilizing the power of Reactive Extensions</description>
-    <releaseNotes>TLS related bug fix</releaseNotes>
+    <releaseNotes>Stability and performance improvements. Added support for WebSocket based MQTT connection</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>mqtt client rx reactivex netstandard14 netstandard20</tags>
     <dependencies>
       <group targetFramework="netstandard1.3">
   
-          <dependency id="MQTTnet" version="2.2.1"/>
+          <dependency id="MQTTnet" version="2.3.0"/>
           <dependency id="System.Reactive" version="3.1.1"/>
           <dependency id="System.ValueTuple" version="4.4.0"/>
  
       </group>
     
       <group targetFramework="netstandard2.0">
-          <dependency id="MQTTnet" version="2.2.1"/>
+          <dependency id="MQTTnet" version="2.3.0"/>
           <dependency id="System.Reactive" version="3.1.1"/>
       </group>
     </dependencies>

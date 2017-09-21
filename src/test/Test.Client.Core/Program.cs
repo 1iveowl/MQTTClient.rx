@@ -33,7 +33,8 @@ namespace Test.Client.Core
             {
                 //Server = "test.mosquitto.org",
                 Server = "broker.hivemq.com",
-                Port = 1883
+                Port = 1883,
+                ConnectionType = ConnectionType.Tcp
             };
 
             var topic1 = new TopicFilter

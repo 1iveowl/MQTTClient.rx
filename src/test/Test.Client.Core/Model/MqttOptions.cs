@@ -16,5 +16,6 @@ namespace Test.Client.Core.Model
         public TimeSpan KeepAlivePeriod { get; internal set; }
         public TimeSpan DefaultCommunicationTimeout { get; internal set; }
         public ProtocolVersion ProtocolVersion { get; internal set; }
+        public ConnectionType ConnectionType { get; internal set; }
     }
 }
