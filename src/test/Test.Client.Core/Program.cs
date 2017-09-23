@@ -31,8 +31,8 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                //Server = "test.mosquitto.org",
-                Server = "broker.hivemq.com",
+                Server = "test.mosquitto.org",
+                //Server = "broker.hivemq.com",
                 Port = 1883,
                 ConnectionType = ConnectionType.Tcp
             };
@@ -41,7 +41,7 @@ namespace Test.Client.Core
             {
                 QualityOfServiceLevel = QoSLevel.ExactlyOnce,
                 //Topic = "PP/#"
-                Topic = "scs/#"
+                Topic = "#"
             };
 
             var topic2 = new TopicFilter
