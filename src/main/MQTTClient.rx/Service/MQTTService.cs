@@ -22,7 +22,7 @@ namespace MQTTClientRx.Service
     public class MQTTService : IMQTTService
     {
         public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client)
-            CreateObservableMQTTServiceAsync(
+            CreateObservableMQTTService(
                 IClientOptions options,
                 IEnumerable<ITopicFilter> topicFilters = null,
                 IWillMessage willMessage = null)
@@ -76,6 +76,7 @@ namespace MQTTClientRx.Service
                             .Subscribe(
                                 disconnectEvent =>
                                 {
+                                    if (!isConnected) return;
                                     Debug.WriteLine("Disconnected");
                                     obs.OnCompleted();
                                 },
@@ -84,8 +85,17 @@ namespace MQTTClientRx.Service
 
                         if (!isConnected)
                         {
-                            await client.ConnectAsync(WrapWillMessage(willMessage));
-                            isConnected = true;
+                            try
+                            {
+                                await client.ConnectAsync(WrapWillMessage(willMessage));
+                                isConnected = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                isConnected = false;
+                                obs.OnError(ex);
+                                
+                            }
                         }
 
                         return new CompositeDisposable(
@@ -125,7 +135,7 @@ namespace MQTTClientRx.Service
                 {
                     UseTls = wrappedOptions.UseTls,
                     CheckCertificateRevocation = wrappedOptions.CheckCertificateRevocation,
-                    Certificates = wrappedOptions.Certificates?.ToList() ?? new List<byte[]>()
+                    Certificates = wrappedOptions.Certificates?.ToList()
                 },
                 UserName = wrappedOptions.UserName,
                 Password = wrappedOptions.Password,
@@ -137,8 +147,6 @@ namespace MQTTClientRx.Service
                     : wrappedOptions.DefaultCommunicationTimeout,
                 ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion),
                 ConnectionType = UnwrapConnectionType(wrappedOptions.ConnectionType)
-                
-
             };
         }
 

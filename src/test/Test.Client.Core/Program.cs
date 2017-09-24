@@ -39,7 +39,7 @@ namespace Test.Client.Core
 
             var topic1 = new TopicFilter
             {
-                QualityOfServiceLevel = QoSLevel.ExactlyOnce,
+                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
                 //Topic = "PP/#"
                 Topic = "#"
             };
@@ -57,7 +57,7 @@ namespace Test.Client.Core
                 topic2
             };
 
-            var MQTTService = mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters);
+            var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
 
             _disp1 = MQTTService.observableMessage.Subscribe(
                 msg =>

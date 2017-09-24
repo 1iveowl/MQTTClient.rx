@@ -4,6 +4,7 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <AssemblyName>MQTTClientRx</AssemblyName>
     <RootNamespace>MQTTClientRx</RootNamespace>
+    <Configurations>Debug;Release;Native</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
