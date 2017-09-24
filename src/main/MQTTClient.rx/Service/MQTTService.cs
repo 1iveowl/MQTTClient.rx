@@ -64,7 +64,14 @@ namespace MQTTClientRx.Service
                                     Debug.WriteLine("Connected");
                                     if (topicFilters?.Any() ?? false)
                                     {
-                                        await wrappedClient.SubscribeAsync(topicFilters);
+                                        try
+                                        {
+                                            await wrappedClient.SubscribeAsync(topicFilters);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            obs.OnError(ex);
+                                        }
                                     }
                                 },
                                 obs.OnError,

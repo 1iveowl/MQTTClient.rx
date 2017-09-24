@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -51,7 +52,7 @@ namespace Test.Client.UWP
             {
                 QualityOfServiceLevel = QoSLevel.AtLeastOnce,
                 //Topic = "PP/#"
-                Topic = "#"
+                Topic = "/#"
             };
 
             ITopicFilter[] topicFilters = {
@@ -61,7 +62,10 @@ namespace Test.Client.UWP
 
             var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
 
-            _disposable = MQTTService.observableMessage.ObserveOnDispatcher().Subscribe(
+            _disposable = MQTTService
+                .observableMessage
+                //.Throttle(TimeSpan.FromMilliseconds(100), Scheduler.Default)
+                .ObserveOnDispatcher().Subscribe(
                 msg =>
                 {
                     textBlock.Text = Encoding.UTF8.GetString(msg.Payload);
