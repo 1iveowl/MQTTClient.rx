@@ -65,7 +65,12 @@ namespace Test.Client.UWP
                 msg =>
                 {
                     textBlock.Text = Encoding.UTF8.GetString(msg.Payload);
-                });
+                },
+                ex =>
+                {
+                    textBlock.Text = "Exception";
+                },
+                () => {});
         }
 
         private void Stop_OnClick(object sender, RoutedEventArgs e)
