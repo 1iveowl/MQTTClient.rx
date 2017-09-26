@@ -140,6 +140,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\MQTTnet\MQTTnet.Core\MQTTnet.Core.csproj">
+      <Project>{1a81353a-1cee-44ff-a5b8-37d6b70df6ef}</Project>
+      <Name>MQTTnet.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClientRx.csproj">
       <Project>{27ff1c81-7df4-4a68-b169-a4f8bc9bc2d3}</Project>
       <Name>IMQTTClientRx</Name>

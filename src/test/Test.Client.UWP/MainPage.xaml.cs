@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -18,6 +20,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using IMQTTClientRx.Model;
 using MQTTClientRx.Service;
+using MQTTnet.Core.Diagnostics;
 using Test.Client.UWP.Model;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -33,8 +36,34 @@ namespace Test.Client.UWP
         public MainPage()
         {
             this.InitializeComponent();
+            
+            MqttTrace.TraceMessagePublished += (s, e) =>
+            {
+
+                this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    var textItem = new TextBlock { Text = $">> [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
+                    panel.Children.Add(textItem);
+
+                    if (e.Exception != null)
+                    {
+                        var textException = new TextBlock { Text = $"   {e.Exception}" };
+                        panel.Children.Add(textException);
+                    }
+                });
+                //var textItem = new TextBlock { Text = $">> [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}" };
+                //panel.Children.Add(textItem);
+
+                //if (e.Exception != null)
+                //{
+                //    var textException = new TextBlock { Text = $"   {e.Exception}" };
+                //    panel.Children.Add(textException);
+                //}
+            };
 
         }
+
+
 
         private void Button_OnClick(object sender, RoutedEventArgs e)
         {
@@ -45,7 +74,10 @@ namespace Test.Client.UWP
                 Server = "test.mosquitto.org",
                 //Server = "broker.hivemq.com",
                 Port = 1883,
-                ConnectionType = ConnectionType.Tcp
+                ConnectionType = ConnectionType.Tcp,
+                CleanSession = true,
+                ClientId = Guid.NewGuid().ToString().Replace("-", string.Empty),
+                UseTls = false
             };
 
             var topic1 = new TopicFilter

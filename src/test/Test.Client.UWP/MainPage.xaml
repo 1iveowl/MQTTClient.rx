@@ -8,11 +8,22 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="12" Grid.Row="0">
             <Button x:Name="button" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Button_OnClick" >OK</Button>
             <TextBlock Text="Here" x:Name="textBlock"></TextBlock>
             <Button x:Name="Stop" HorizontalAlignment="Center" Click="Stop_OnClick">Stop</Button>
         </StackPanel>
+        <ScrollViewer Grid.Row ="1" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center">
+            <StackPanel Name="panel" Height="400" Background="Aqua"
+                        Width="600" HorizontalAlignment="Center">
+                
+            </StackPanel>
+        </ScrollViewer>
+
        
     </Grid>
 </Page>
