@@ -71,8 +71,8 @@ namespace Test.Client.UWP
 
             var mqttClientOptions = new Options
             {
-                //Server = "test.mosquitto.org",
-                Server = "192.168.0.41",
+                Server = "test.mosquitto.org",
+                //Server = "192.168.0.41",
                 Port = 1883,
                 ConnectionType = ConnectionType.Tcp,
                 CleanSession = true,

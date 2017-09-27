@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -38,6 +39,8 @@ namespace MQTTClientRx.Service
                         var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
                                 h => client.ApplicationMessageReceived += h,
                                 h => client.ApplicationMessageReceived -= h)
+                            //.ObserveOn(Scheduler.CurrentThread)
+                            //.SubscribeOn(Scheduler.Default)
                             .Subscribe(
                                 msgEvent =>
                                 {
@@ -58,6 +61,8 @@ namespace MQTTClientRx.Service
                         var disposableConnect = Observable.FromEventPattern(
                                 h => client.Connected += h,
                                 h => client.Connected -= h)
+                            //.SubscribeOn(Scheduler.CurrentThread)
+                            //.ObserveOn(Scheduler.CurrentThread)
                             .Subscribe(
                                 async connectEvent =>
                                 {
@@ -80,6 +85,8 @@ namespace MQTTClientRx.Service
                         var disposableDisconnect = Observable.FromEventPattern(
                                 h => client.Disconnected += h,
                                 h => client.Disconnected -= h)
+                            //.SubscribeOn(Scheduler.CurrentThread)
+                            //.ObserveOn(Scheduler.CurrentThread)
                             .Subscribe(
                                 disconnectEvent =>
                                 {
