@@ -42,7 +42,7 @@ namespace Test.Client.UWP
 
                 this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    var textItem = new TextBlock { Text = $">> [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
+                    var textItem = new TextBlock { Text = $">> [{DateTime.Now.ToString("hh:mm:ss.fff tt")}] [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
                     panel.Children.Add(textItem);
 
                     if (e.Exception != null)
@@ -71,8 +71,8 @@ namespace Test.Client.UWP
 
             var mqttClientOptions = new Options
             {
-                Server = "test.mosquitto.org",
-                //Server = "broker.hivemq.com",
+                //Server = "test.mosquitto.org",
+                Server = "192.168.0.41",
                 Port = 1883,
                 ConnectionType = ConnectionType.Tcp,
                 CleanSession = true,
