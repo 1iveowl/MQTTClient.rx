@@ -36,28 +36,6 @@ namespace MQTTClientRx.Service
             var observable = Observable.Create<IMQTTMessage>(
                     async obs =>
                     {
-                        var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
-                                h => client.ApplicationMessageReceived += h,
-                                h => client.ApplicationMessageReceived -= h)
-                            //.ObserveOn(Scheduler.CurrentThread)
-                            //.SubscribeOn(Scheduler.Default)
-                            .Subscribe(
-                                msgEvent =>
-                                {
-                                    var message = new MQTTMessage
-                                    {
-                                        Payload = msgEvent.EventArgs.ApplicationMessage.Payload,
-                                        Retain = msgEvent.EventArgs.ApplicationMessage.Retain,
-                                        QualityOfServiceLevel =
-                                            (QoSLevel) msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
-                                        Topic = msgEvent.EventArgs.ApplicationMessage.Topic
-                                    };
-
-                                    obs.OnNext(message);
-                                },
-                                obs.OnError,
-                                obs.OnCompleted);
-
                         var disposableConnect = Observable.FromEventPattern(
                                 h => client.Connected += h,
                                 h => client.Connected -= h)
@@ -78,6 +56,28 @@ namespace MQTTClientRx.Service
                                             obs.OnError(ex);
                                         }
                                     }
+                                },
+                                obs.OnError,
+                                obs.OnCompleted);
+
+                        var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
+                                h => client.ApplicationMessageReceived += h,
+                                h => client.ApplicationMessageReceived -= h)
+                            //.ObserveOn(Scheduler.CurrentThread)
+                            //.SubscribeOn(Scheduler.Default)
+                            .Subscribe(
+                                msgEvent =>
+                                {
+                                    var message = new MQTTMessage
+                                    {
+                                        Payload = msgEvent.EventArgs.ApplicationMessage.Payload,
+                                        Retain = msgEvent.EventArgs.ApplicationMessage.Retain,
+                                        QualityOfServiceLevel =
+                                            (QoSLevel)msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
+                                        Topic = msgEvent.EventArgs.ApplicationMessage.Topic
+                                    };
+
+                                    obs.OnNext(message);
                                 },
                                 obs.OnError,
                                 obs.OnCompleted);
@@ -113,7 +113,7 @@ namespace MQTTClientRx.Service
                         }
 
                         return new CompositeDisposable(
-                            Disposable.Create(() => { CleanUp(client).Wait(); }),
+                            Disposable.Create(async () => { await CleanUp(client); }),
                             disposableMessage,
                             disposableConnect,
                             disposableDisconnect);
