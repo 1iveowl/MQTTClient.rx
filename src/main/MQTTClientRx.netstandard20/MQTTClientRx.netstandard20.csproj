@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\MQTTnet\Frameworks\MQTTnet.NetFramework\MQTTnet.NetFramework.csproj" />
     <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClientRx.csproj" />
   </ItemGroup>
 
@@ -27,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="2.3.1" />
     <PackageReference Include="System.Reactive" Version="3.1.1" />
   </ItemGroup>
 
