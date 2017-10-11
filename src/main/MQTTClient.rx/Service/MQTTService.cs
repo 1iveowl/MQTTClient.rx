@@ -139,11 +139,13 @@ namespace MQTTClientRx.Service
 
         private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions, IWillMessage willMessage)
         {
+            var wrappedWillMessage = WrapWillMessage(willMessage);
+
             if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
             {
                 return new MqttClientTcpOptions()
                 {
-                    WillMessage = new MqttApplicationMessage(),
+                    WillMessage = WrapWillMessage(willMessage),
                     Server = wrappedOptions.Server,
                     CleanSession = wrappedOptions.CleanSession,
                     ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
@@ -171,7 +173,7 @@ namespace MQTTClientRx.Service
             {
                 return new MqttClientWebSocketOptions()
                 {
-                    WillMessage = new MqttApplicationMessage(),
+                    WillMessage = WrapWillMessage(willMessage),
                     Uri = wrappedOptions.Url,
                     CleanSession = wrappedOptions.CleanSession,
                     ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
@@ -197,7 +199,7 @@ namespace MQTTClientRx.Service
 
         }
 
-        private MqttApplicationMessage WrapWillMessage(IWillMessage message)
+        private static MqttApplicationMessage WrapWillMessage(IWillMessage message)
         {
             if (message != null)
             {

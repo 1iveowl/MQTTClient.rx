@@ -37,12 +37,12 @@ namespace Test.Client.UWP
         {
             this.InitializeComponent();
             
-            MqttTrace.TraceMessagePublished += (s, e) =>
+            MqttNetTrace.TraceMessagePublished += async (s, e) =>
             {
 
-                this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    var textItem = new TextBlock { Text = $">> [{DateTime.Now.ToString("hh:mm:ss.fff tt")}] [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
+                    var textItem = new TextBlock { Text = $">> [{DateTime.Now:hh:mm:ss.fff tt}] [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
                     panel.Children.Add(textItem);
 
                     if (e.Exception != null)
