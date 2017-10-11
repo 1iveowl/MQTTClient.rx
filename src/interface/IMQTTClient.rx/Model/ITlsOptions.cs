@@ -8,8 +8,6 @@ namespace IMQTTClientRx.Model
     {
         bool UseTls { get;}
 
-        bool CheckCertificateRevocation { get;}
-
         IEnumerable<byte[]> Certificates { get;}
 
         bool IgnoreCertificateChainErrors { get; }

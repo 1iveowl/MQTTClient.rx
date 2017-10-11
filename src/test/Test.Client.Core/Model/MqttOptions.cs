@@ -9,6 +9,7 @@ namespace Test.Client.Core.Model
     {
         public string Server { get; internal set; }
         public int? Port { get; internal set; }
+        public string Url { get; internal set; }
         public string UserName { get; internal set; }
         public string Password { get; internal set; }
         public string ClientId { get; internal set; }

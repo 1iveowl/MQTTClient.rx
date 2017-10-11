@@ -30,7 +30,7 @@ namespace MQTTClientRx.Service
         {
             var isConnected = false;
 
-            var client = new MqttClientFactory().CreateMqttClient(UnwrapOptions(options));
+            var client = new MqttClientFactory().CreateMqttClient();
             var wrappedClient = new MQTTClient(client);
 
             var observable = Observable.Create<IMQTTMessage>(
@@ -101,7 +101,7 @@ namespace MQTTClientRx.Service
                         {
                             try
                             {
-                                await client.ConnectAsync(WrapWillMessage(willMessage));
+                                await client.ConnectAsync(UnwrapOptions(options, willMessage));
                                 isConnected = true;
                             }
                             catch (Exception ex)
@@ -137,29 +137,64 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions)
+        private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions, IWillMessage willMessage)
         {
-            return new MqttClientTcpOptions()
+            if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
             {
-                Server = wrappedOptions.Server,
-                CleanSession = wrappedOptions.CleanSession,
-                ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
-                Port = wrappedOptions.Port,
-                TlsOptions =
+                return new MqttClientTcpOptions()
                 {
-                    UseTls = wrappedOptions.UseTls,
-                    Certificates = wrappedOptions.Certificates?.ToList()
-                },
-                UserName = wrappedOptions.UserName,
-                Password = wrappedOptions.Password,
-                KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
-                    ? TimeSpan.FromSeconds(5)
-                    : wrappedOptions.KeepAlivePeriod,
-                DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
-                    ? TimeSpan.FromSeconds(10)
-                    : wrappedOptions.DefaultCommunicationTimeout,
-                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
-            };
+                    WillMessage = new MqttApplicationMessage(),
+                    Server = wrappedOptions.Server,
+                    CleanSession = wrappedOptions.CleanSession,
+                    ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
+                    Port = wrappedOptions.Port,
+                    TlsOptions =
+                    {
+                        UseTls = wrappedOptions.UseTls,
+                        Certificates = wrappedOptions.Certificates?.ToList(),
+                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                        IgnoreCertificateRevocationErrors = wrappedOptions.IgnoreCertificateRevocationErrors,
+                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates
+                    },
+                    UserName = wrappedOptions.UserName,
+                    Password = wrappedOptions.Password,
+                    KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(5)
+                        : wrappedOptions.KeepAlivePeriod,
+                    DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(10)
+                        : wrappedOptions.DefaultCommunicationTimeout,
+                    ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
+                };
+            }
+            else
+            {
+                return new MqttClientWebSocketOptions()
+                {
+                    WillMessage = new MqttApplicationMessage(),
+                    Uri = wrappedOptions.Url,
+                    CleanSession = wrappedOptions.CleanSession,
+                    ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
+                    TlsOptions =
+                    {
+                        UseTls = wrappedOptions.UseTls,
+                        Certificates = wrappedOptions.Certificates?.ToList(),
+                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                        IgnoreCertificateRevocationErrors = wrappedOptions.IgnoreCertificateRevocationErrors,
+                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates
+                    },
+                    UserName = wrappedOptions.UserName,
+                    Password = wrappedOptions.Password,
+                    KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(5)
+                        : wrappedOptions.KeepAlivePeriod,
+                    DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(10)
+                        : wrappedOptions.DefaultCommunicationTimeout,
+                    ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
+                };
+            }
+
         }
 
         private MqttApplicationMessage WrapWillMessage(IWillMessage message)
