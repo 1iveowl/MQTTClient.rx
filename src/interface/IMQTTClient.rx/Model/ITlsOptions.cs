@@ -11,5 +11,11 @@ namespace IMQTTClientRx.Model
         bool CheckCertificateRevocation { get;}
 
         IEnumerable<byte[]> Certificates { get;}
+
+        bool IgnoreCertificateChainErrors { get; }
+
+        bool IgnoreCertificateRevocationErrors { get; }
+
+        bool AllowUntrustedCertificates { get; }
     }
 }

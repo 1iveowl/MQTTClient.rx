@@ -139,7 +139,7 @@ namespace MQTTClientRx.Service
 
         private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions)
         {
-            return new MqttClientOptions
+            return new MqttClientTcpOptions()
             {
                 Server = wrappedOptions.Server,
                 CleanSession = wrappedOptions.CleanSession,
@@ -148,7 +148,6 @@ namespace MQTTClientRx.Service
                 TlsOptions =
                 {
                     UseTls = wrappedOptions.UseTls,
-                    CheckCertificateRevocation = wrappedOptions.CheckCertificateRevocation,
                     Certificates = wrappedOptions.Certificates?.ToList()
                 },
                 UserName = wrappedOptions.UserName,
@@ -159,8 +158,7 @@ namespace MQTTClientRx.Service
                 DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
                     ? TimeSpan.FromSeconds(10)
                     : wrappedOptions.DefaultCommunicationTimeout,
-                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion),
-                ConnectionType = UnwrapConnectionType(wrappedOptions.ConnectionType)
+                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
             };
         }
 
@@ -187,12 +185,10 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private static MqttConnectionType UnwrapConnectionType(ConnectionType connectionType)
+        private static MqttClientTcpOptions UnwrapConnectionType(ConnectionType connectionType)
         {
             switch (connectionType)
             {
-                case ConnectionType.Tcp: return MqttConnectionType.Tcp;
-                case ConnectionType.WebSocket: return MqttConnectionType.Ws;
                 default: throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null);
             }
         }
