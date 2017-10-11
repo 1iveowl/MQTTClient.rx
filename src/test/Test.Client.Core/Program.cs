@@ -31,17 +31,17 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                //Server = "test.mosquitto.org",
-                Server = "broker.hivemq.com",
+                Server = "test.mosquitto.org",
+                //Server = "broker.hivemq.com",
                 Port = 1883,
                 ConnectionType = ConnectionType.Tcp
             };
 
             var topic1 = new TopicFilter
             {
-                QualityOfServiceLevel = QoSLevel.ExactlyOnce,
+                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
                 //Topic = "PP/#"
-                Topic = "scs/#"
+                Topic = "#"
             };
 
             var topic2 = new TopicFilter
@@ -57,7 +57,7 @@ namespace Test.Client.Core
                 topic2
             };
 
-            var MQTTService = mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters);
+            var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
 
             _disp1 = MQTTService.observableMessage.Subscribe(
                 msg =>

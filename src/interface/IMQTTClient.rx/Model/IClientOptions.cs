@@ -10,6 +10,8 @@ namespace IMQTTClientRx.Model
 
         int? Port { get;}
 
+        string Url { get; }
+
         string UserName { get;}
 
         string Password { get;}

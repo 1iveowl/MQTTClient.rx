@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using IMQTTClientRx.Model;
 
-namespace Test.Client.Core.Model
+namespace Test.Client.UWP.Model
 {
     internal class Options : TlsOptions, IClientOptions
     {

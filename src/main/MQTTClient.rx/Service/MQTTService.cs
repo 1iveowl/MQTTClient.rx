@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -22,22 +23,48 @@ namespace MQTTClientRx.Service
     public class MQTTService : IMQTTService
     {
         public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client)
-            CreateObservableMQTTServiceAsync(
+            CreateObservableMQTTService(
                 IClientOptions options,
                 IEnumerable<ITopicFilter> topicFilters = null,
                 IWillMessage willMessage = null)
         {
             var isConnected = false;
 
-            var client = new MqttClientFactory().CreateMqttClient(UnwrapOptions(options));
+            var client = new MqttClientFactory().CreateMqttClient();
             var wrappedClient = new MQTTClient(client);
 
             var observable = Observable.Create<IMQTTMessage>(
                     async obs =>
                     {
+                        var disposableConnect = Observable.FromEventPattern(
+                                h => client.Connected += h,
+                                h => client.Connected -= h)
+                            //.SubscribeOn(Scheduler.CurrentThread)
+                            //.ObserveOn(Scheduler.CurrentThread)
+                            .Subscribe(
+                                async connectEvent =>
+                                {
+                                    Debug.WriteLine("Connected");
+                                    if (topicFilters?.Any() ?? false)
+                                    {
+                                        try
+                                        {
+                                            await wrappedClient.SubscribeAsync(topicFilters);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            obs.OnError(ex);
+                                        }
+                                    }
+                                },
+                                obs.OnError,
+                                obs.OnCompleted);
+
                         var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
                                 h => client.ApplicationMessageReceived += h,
                                 h => client.ApplicationMessageReceived -= h)
+                            //.ObserveOn(Scheduler.CurrentThread)
+                            //.SubscribeOn(Scheduler.Default)
                             .Subscribe(
                                 msgEvent =>
                                 {
@@ -46,7 +73,7 @@ namespace MQTTClientRx.Service
                                         Payload = msgEvent.EventArgs.ApplicationMessage.Payload,
                                         Retain = msgEvent.EventArgs.ApplicationMessage.Retain,
                                         QualityOfServiceLevel =
-                                            (QoSLevel) msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
+                                            (QoSLevel)msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
                                         Topic = msgEvent.EventArgs.ApplicationMessage.Topic
                                     };
 
@@ -55,27 +82,15 @@ namespace MQTTClientRx.Service
                                 obs.OnError,
                                 obs.OnCompleted);
 
-                        var disposableConnect = Observable.FromEventPattern(
-                                h => client.Connected += h,
-                                h => client.Connected -= h)
-                            .Subscribe(
-                                async connectEvent =>
-                                {
-                                    Debug.WriteLine("Connected");
-                                    if (topicFilters?.Any() ?? false)
-                                    {
-                                        await wrappedClient.SubscribeAsync(topicFilters);
-                                    }
-                                },
-                                obs.OnError,
-                                obs.OnCompleted);
-
                         var disposableDisconnect = Observable.FromEventPattern(
                                 h => client.Disconnected += h,
                                 h => client.Disconnected -= h)
+                            //.SubscribeOn(Scheduler.CurrentThread)
+                            //.ObserveOn(Scheduler.CurrentThread)
                             .Subscribe(
                                 disconnectEvent =>
                                 {
+                                    if (!isConnected) return;
                                     Debug.WriteLine("Disconnected");
                                     obs.OnCompleted();
                                 },
@@ -84,12 +99,21 @@ namespace MQTTClientRx.Service
 
                         if (!isConnected)
                         {
-                            await client.ConnectAsync(WrapWillMessage(willMessage));
-                            isConnected = true;
+                            try
+                            {
+                                await client.ConnectAsync(UnwrapOptions(options, willMessage));
+                                isConnected = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                isConnected = false;
+                                obs.OnError(ex);
+                                
+                            }
                         }
 
                         return new CompositeDisposable(
-                            Disposable.Create(() => { CleanUp(client).Wait(); }),
+                            Disposable.Create(async () => { await CleanUp(client); }),
                             disposableMessage,
                             disposableConnect,
                             disposableDisconnect);
@@ -113,36 +137,69 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions)
+        private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions, IWillMessage willMessage)
         {
-            return new MqttClientOptions
-            {
-                Server = wrappedOptions.Server,
-                CleanSession = wrappedOptions.CleanSession,
-                ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
-                Port = wrappedOptions.Port,
-                TlsOptions =
-                {
-                    UseTls = wrappedOptions.UseTls,
-                    CheckCertificateRevocation = wrappedOptions.CheckCertificateRevocation,
-                    Certificates = wrappedOptions.Certificates?.ToList() ?? new List<byte[]>()
-                },
-                UserName = wrappedOptions.UserName,
-                Password = wrappedOptions.Password,
-                KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
-                    ? TimeSpan.FromSeconds(5)
-                    : wrappedOptions.KeepAlivePeriod,
-                DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
-                    ? TimeSpan.FromSeconds(10)
-                    : wrappedOptions.DefaultCommunicationTimeout,
-                ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion),
-                ConnectionType = UnwrapConnectionType(wrappedOptions.ConnectionType)
-                
+            var wrappedWillMessage = WrapWillMessage(willMessage);
 
-            };
+            if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
+            {
+                return new MqttClientTcpOptions()
+                {
+                    WillMessage = WrapWillMessage(willMessage),
+                    Server = wrappedOptions.Server,
+                    CleanSession = wrappedOptions.CleanSession,
+                    ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
+                    Port = wrappedOptions.Port,
+                    TlsOptions =
+                    {
+                        UseTls = wrappedOptions.UseTls,
+                        Certificates = wrappedOptions.Certificates?.ToList(),
+                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                        IgnoreCertificateRevocationErrors = wrappedOptions.IgnoreCertificateRevocationErrors,
+                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates
+                    },
+                    UserName = wrappedOptions.UserName,
+                    Password = wrappedOptions.Password,
+                    KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(5)
+                        : wrappedOptions.KeepAlivePeriod,
+                    DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(10)
+                        : wrappedOptions.DefaultCommunicationTimeout,
+                    ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
+                };
+            }
+            else
+            {
+                return new MqttClientWebSocketOptions()
+                {
+                    WillMessage = WrapWillMessage(willMessage),
+                    Uri = wrappedOptions.Url,
+                    CleanSession = wrappedOptions.CleanSession,
+                    ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
+                    TlsOptions =
+                    {
+                        UseTls = wrappedOptions.UseTls,
+                        Certificates = wrappedOptions.Certificates?.ToList(),
+                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                        IgnoreCertificateRevocationErrors = wrappedOptions.IgnoreCertificateRevocationErrors,
+                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates
+                    },
+                    UserName = wrappedOptions.UserName,
+                    Password = wrappedOptions.Password,
+                    KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(5)
+                        : wrappedOptions.KeepAlivePeriod,
+                    DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                        ? TimeSpan.FromSeconds(10)
+                        : wrappedOptions.DefaultCommunicationTimeout,
+                    ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
+                };
+            }
+
         }
 
-        private MqttApplicationMessage WrapWillMessage(IWillMessage message)
+        private static MqttApplicationMessage WrapWillMessage(IWillMessage message)
         {
             if (message != null)
             {
@@ -165,12 +222,10 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private static MqttConnectionType UnwrapConnectionType(ConnectionType connectionType)
+        private static MqttClientTcpOptions UnwrapConnectionType(ConnectionType connectionType)
         {
             switch (connectionType)
             {
-                case ConnectionType.Tcp: return MqttConnectionType.Tcp;
-                case ConnectionType.WebSocket: return MqttConnectionType.Ws;
                 default: throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null);
             }
         }
