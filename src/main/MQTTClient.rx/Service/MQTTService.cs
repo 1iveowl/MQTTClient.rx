@@ -140,6 +140,8 @@ namespace MQTTClientRx.Service
                 Debug.WriteLine(result == timeOutTask
                     ? "Disconnect Timed Out"
                     : "Disconnected Successfully");
+
+                IsConnected = false;
             }
         }
 

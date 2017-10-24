@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IMQTTClientRx.Model;
+using IMQTTClientRx.Service;
 using MQTTnet.Core;
 using MQTTnet.Core.Client;
 using MQTTnet.Core.Packets;
@@ -13,10 +14,12 @@ namespace MQTTClientRx.Model
     internal class MQTTClient : IMQTTClient
     {
         private readonly IMqttClient _mqttClient;
+        private readonly IMQTTService _mqttService;
 
-        internal MQTTClient(IMqttClient client)
+        internal MQTTClient(IMqttClient client, IMQTTService mqttService)
         {
             _mqttClient = client;
+            _mqttService = mqttService;
         }
         
         public async Task SubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
@@ -36,6 +39,11 @@ namespace MQTTClientRx.Model
 
         public async Task PublishAsync(IMQTTMessage message)
         {
+            while (!_mqttService.IsConnected)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+            }
+
             await _mqttClient.PublishAsync(WrapMessage(message));
         }
 
