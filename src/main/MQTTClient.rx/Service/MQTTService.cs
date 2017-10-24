@@ -38,7 +38,7 @@ namespace MQTTClientRx.Service
             IsConnected = false;
 
             _client = new MqttClientFactory().CreateMqttClient();
-            _wrappedClient = new MQTTClient(_client);
+            _wrappedClient = new MQTTClient(_client, this);
 
             IsConnected = false;
 
@@ -78,7 +78,7 @@ namespace MQTTClientRx.Service
                                         Payload = msgEvent.EventArgs.ApplicationMessage.Payload,
                                         Retain = msgEvent.EventArgs.ApplicationMessage.Retain,
                                         QualityOfServiceLevel =
-                                            (QoSLevel)msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel,
+                                            ConvertToQoSLevel(msgEvent.EventArgs.ApplicationMessage.QualityOfServiceLevel),
                                         Topic = msgEvent.EventArgs.ApplicationMessage.Topic
                                     };
 
@@ -214,7 +214,7 @@ namespace MQTTClientRx.Service
                 return new MqttApplicationMessage(
                     message.Topic,
                     message.Payload,
-                    (MqttQualityOfServiceLevel) message.QualityOfServiceLevel,
+                    ConvertToQualityOfServiceLevel(message.QualityOfServiceLevel),
                     message.Retain);
             }
             return null;
@@ -238,5 +238,28 @@ namespace MQTTClientRx.Service
             }
         }
 
+        private static QoSLevel ConvertToQoSLevel(MqttQualityOfServiceLevel qos)
+        {
+            switch (qos)
+            {
+                case MqttQualityOfServiceLevel.AtMostOnce: return QoSLevel.AtMostOnce;
+                case MqttQualityOfServiceLevel.AtLeastOnce: return QoSLevel.AtLeastOnce;
+                case MqttQualityOfServiceLevel.ExactlyOnce: return QoSLevel.ExactlyOnce;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(qos), qos, null);
+            }
+        }
+
+        private static MqttQualityOfServiceLevel ConvertToQualityOfServiceLevel(QoSLevel qos)
+        {
+            switch (qos)
+            {
+                case QoSLevel.AtMostOnce: return MqttQualityOfServiceLevel.AtMostOnce;
+                case QoSLevel.AtLeastOnce: return MqttQualityOfServiceLevel.AtLeastOnce;
+                case QoSLevel.ExactlyOnce: return MqttQualityOfServiceLevel.ExactlyOnce;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(qos), qos, null);
+            }
+        }
     }
 }

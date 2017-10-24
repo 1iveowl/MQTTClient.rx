@@ -54,12 +54,19 @@ namespace MQTTClientRx.Model
 
         private IList<TopicFilter> WrapTopicFilters(IEnumerable<ITopicFilter> topicFilters)
         {
-            return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, MapQosLevel(tFilter.QualityOfServiceLevel))).ToList();
+            return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, ConvertQosLevel(tFilter.QualityOfServiceLevel))).ToList();
         }
 
-        private MqttQualityOfServiceLevel MapQosLevel(QoSLevel qosLvl)
+        private MqttQualityOfServiceLevel ConvertQosLevel(QoSLevel qosLvl)
         {
-            return (MqttQualityOfServiceLevel)qosLvl;
+            switch (qosLvl)
+            {
+                case QoSLevel.AtMostOnce: return MqttQualityOfServiceLevel.AtMostOnce;
+                case QoSLevel.AtLeastOnce: return MqttQualityOfServiceLevel.AtLeastOnce;
+                case QoSLevel.ExactlyOnce: return MqttQualityOfServiceLevel.ExactlyOnce;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(qosLvl), qosLvl, null);
+            }
         }
 
         private MqttApplicationMessage WrapMessage(IMQTTMessage message)
@@ -68,7 +75,7 @@ namespace MQTTClientRx.Model
             return new MqttApplicationMessage(
                     message.Topic, 
                     message.Payload, 
-                    MapQosLevel(message.QualityOfServiceLevel), 
+                    ConvertQosLevel(message.QualityOfServiceLevel), 
                     retain:message.Retain);
         }
     }
