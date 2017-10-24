@@ -16,7 +16,6 @@
             <Button x:Name="button" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Button_OnClick" >OK</Button>
             <TextBlock Text="Here" x:Name="textBlock"></TextBlock>
             <Button x:Name="Stop" HorizontalAlignment="Center" Click="Stop_OnClick">Stop</Button>
-            <Button x:Name="Disconnect" HorizontalAlignment="Center" Click="Disconnect_OnClick">Disconnect</Button>
         </StackPanel>
         <ScrollViewer Grid.Row ="1" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center">
             <StackPanel Name="panel" Height="400" Background="Aqua"

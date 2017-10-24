@@ -26,30 +26,25 @@ namespace MQTTClientRx.Service
     {
         private IMqttClient _client;
         private IMQTTClient _wrappedClient;
-        private IObserver<IMQTTMessage> _mqttObserver;
 
         public bool IsConnected { get; private set; }
 
-        public async Task<(IObservable<IMQTTMessage> observableMessage, IMQTTClient client)>
-            CreateObservableMQTTServiceAsync(
+        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client)
+            CreateObservableMQTTService(
                 IClientOptions options,
                 IEnumerable<ITopicFilter> topicFilters = null,
                 IWillMessage willMessage = null)
         {
-            await InitializeClient();
+            IsConnected = false;
 
-            if (IsConnected)
-            {
-                await CleanUp(_client);
-            }
+            _client = new MqttClientFactory().CreateMqttClient();
+            _wrappedClient = new MQTTClient(_client);
 
             IsConnected = false;
 
             var observable = Observable.Create<IMQTTMessage>(
                     async obs =>
                     {
-                        _mqttObserver = obs.AsObserver();
-
                         var disposableConnect = Observable.FromEventPattern(
                                 h => _client.Connected += h,
                                 h => _client.Connected -= h)
@@ -107,11 +102,16 @@ namespace MQTTClientRx.Service
 
                         if (!IsConnected)
                         {
-                            var resultException = await ConnectClientAlreadyInitializedAsync(options, willMessage);
-
-                            if (resultException != null)
+                            try
                             {
-                                obs.OnError(resultException);
+                                await _client.ConnectAsync(UnwrapOptions(options, willMessage));
+                                IsConnected = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                IsConnected = false;
+                                obs.OnError(ex);
+
                             }
                         }
 
@@ -127,44 +127,6 @@ namespace MQTTClientRx.Service
             return (observable, _wrappedClient);
         }
 
-        public async Task<IMQTTClient> ConnectAsync(IClientOptions options, IWillMessage willMessage)
-        {
-            await InitializeClient();
-
-            if (IsConnected)
-            {
-                throw new Exception("MQTT client already connected. Disconnect before making a new connection.");
-            }
-
-            await ConnectClientAlreadyInitializedAsync(options, willMessage);
-
-            return _wrappedClient;
-        }
-
-        private async Task<Exception> ConnectClientAlreadyInitializedAsync(IClientOptions options, IWillMessage willMessage)
-        {
-            try
-            {
-                await _client.ConnectAsync(UnwrapOptions(options, willMessage));
-                IsConnected = true;
-            }
-            catch (Exception ex)
-            {
-                IsConnected = false;
-                return ex;
-            }
-            return null;
-        }
-
-        public async Task DisconnectAsync()
-        {
-            if (_client != null && _wrappedClient != null && _client.IsConnected)
-            {
-                _mqttObserver?.OnCompleted();
-
-                await CleanUp(_client);
-            }
-        }
 
         private async Task CleanUp(IMqttClient client)
         {
@@ -178,8 +140,6 @@ namespace MQTTClientRx.Service
                 Debug.WriteLine(result == timeOutTask
                     ? "Disconnect Timed Out"
                     : "Disconnected Successfully");
-
-                _mqttObserver = null;
             }
         }
 
@@ -276,24 +236,5 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private async Task InitializeClient()
-        {
-            if (_client == null)
-            {
-                _client = new MqttClientFactory().CreateMqttClient();
-            }
-            //else
-            //{
-            //    if (_client.IsConnected)
-            //    {
-            //        await CleanUp(_client);
-            //    }
-            //}
-
-            if (_wrappedClient == null)
-            {
-                _wrappedClient = new MQTTClient(_client);
-            }
-        }
     }
 }

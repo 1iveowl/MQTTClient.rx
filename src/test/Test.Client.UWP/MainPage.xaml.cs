@@ -94,8 +94,7 @@ namespace Test.Client.UWP
                 topic1,
             };
 
-            var MQTTService = _mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters).Result;
-
+            var MQTTService = _mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
             _disposable = MQTTService
                 .observableMessage
                 .SubscribeOnDispatcher()
@@ -121,9 +120,5 @@ namespace Test.Client.UWP
             _disposable.Dispose();
         }
 
-        private void Disconnect_OnClick(object sender, RoutedEventArgs e)
-        {
-            _mqttService.DisconnectAsync();
-        }
     }
 }

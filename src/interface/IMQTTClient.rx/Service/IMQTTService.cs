@@ -9,13 +9,10 @@ namespace IMQTTClientRx.Service
     {
         bool IsConnected { get; }
 
-        Task<(IObservable<IMQTTMessage> observableMessage, Model.IMQTTClient client)> CreateObservableMQTTServiceAsync(
+        (IObservable<IMQTTMessage> observableMessage, Model.IMQTTClient client) CreateObservableMQTTService(
             IClientOptions options, 
             IEnumerable<ITopicFilter> topicFilters = null,
             IWillMessage willMessage = null);
 
-        Task<IMQTTClient> ConnectAsync(IClientOptions options, IWillMessage willMessage);
-
-        Task DisconnectAsync();
     }
 }
