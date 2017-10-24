@@ -57,7 +57,7 @@ namespace Test.Client.Core
                 topic2
             };
 
-            var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
+            var MQTTService = await mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters);
 
             _disp1 = MQTTService.observableMessage.Subscribe(
                 msg =>

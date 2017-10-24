@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -12,6 +13,7 @@ using MQTTClientRx.Extension;
 using MQTTClientRx.Model;
 using MQTTnet;
 using MQTTnet.Core;
+using MQTTnet.Core.Adapter;
 using MQTTnet.Core.Client;
 using MQTTnet.Core.Protocol;
 using MQTTnet.Core.Serializer;
@@ -22,25 +24,35 @@ namespace MQTTClientRx.Service
 {
     public class MQTTService : IMQTTService
     {
-        public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client)
-            CreateObservableMQTTService(
+        private IMqttClient _client;
+        private IMQTTClient _wrappedClient;
+        private IObserver<IMQTTMessage> _mqttObserver;
+
+        public bool IsConnected { get; private set; }
+
+        public async Task<(IObservable<IMQTTMessage> observableMessage, IMQTTClient client)>
+            CreateObservableMQTTServiceAsync(
                 IClientOptions options,
                 IEnumerable<ITopicFilter> topicFilters = null,
                 IWillMessage willMessage = null)
         {
-            var isConnected = false;
+            await InitializeClient();
 
-            var client = new MqttClientFactory().CreateMqttClient();
-            var wrappedClient = new MQTTClient(client);
+            if (IsConnected)
+            {
+                await CleanUp(_client);
+            }
+
+            IsConnected = false;
 
             var observable = Observable.Create<IMQTTMessage>(
                     async obs =>
                     {
+                        _mqttObserver = obs.AsObserver();
+
                         var disposableConnect = Observable.FromEventPattern(
-                                h => client.Connected += h,
-                                h => client.Connected -= h)
-                            //.SubscribeOn(Scheduler.CurrentThread)
-                            //.ObserveOn(Scheduler.CurrentThread)
+                                h => _client.Connected += h,
+                                h => _client.Connected -= h)
                             .Subscribe(
                                 async connectEvent =>
                                 {
@@ -49,7 +61,7 @@ namespace MQTTClientRx.Service
                                     {
                                         try
                                         {
-                                            await wrappedClient.SubscribeAsync(topicFilters);
+                                            await _wrappedClient.SubscribeAsync(topicFilters);
                                         }
                                         catch (Exception ex)
                                         {
@@ -61,10 +73,8 @@ namespace MQTTClientRx.Service
                                 obs.OnCompleted);
 
                         var disposableMessage = Observable.FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
-                                h => client.ApplicationMessageReceived += h,
-                                h => client.ApplicationMessageReceived -= h)
-                            //.ObserveOn(Scheduler.CurrentThread)
-                            //.SubscribeOn(Scheduler.Default)
+                                h => _client.ApplicationMessageReceived += h,
+                                h => _client.ApplicationMessageReceived -= h)
                             .Subscribe(
                                 msgEvent =>
                                 {
@@ -83,45 +93,76 @@ namespace MQTTClientRx.Service
                                 obs.OnCompleted);
 
                         var disposableDisconnect = Observable.FromEventPattern(
-                                h => client.Disconnected += h,
-                                h => client.Disconnected -= h)
-                            //.SubscribeOn(Scheduler.CurrentThread)
-                            //.ObserveOn(Scheduler.CurrentThread)
+                                h => _client.Disconnected += h,
+                                h => _client.Disconnected -= h)
                             .Subscribe(
                                 disconnectEvent =>
                                 {
-                                    if (!isConnected) return;
+                                    if (!IsConnected) return;
                                     Debug.WriteLine("Disconnected");
                                     obs.OnCompleted();
                                 },
                                 obs.OnError,
                                 obs.OnCompleted);
 
-                        if (!isConnected)
+                        if (!IsConnected)
                         {
-                            try
+                            var resultException = await ConnectClientAlreadyInitializedAsync(options, willMessage);
+
+                            if (resultException != null)
                             {
-                                await client.ConnectAsync(UnwrapOptions(options, willMessage));
-                                isConnected = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                isConnected = false;
-                                obs.OnError(ex);
-                                
+                                obs.OnError(resultException);
                             }
                         }
 
                         return new CompositeDisposable(
-                            Disposable.Create(async () => { await CleanUp(client); }),
+                            Disposable.Create(async () => { await CleanUp(_client); }),
                             disposableMessage,
                             disposableConnect,
                             disposableDisconnect);
                     })
-                .FinallyAsync(async () => { await CleanUp(client); })
+                .FinallyAsync(async () => { await CleanUp(_client); })
                 .Publish().RefCount();
 
-            return (observable, wrappedClient);
+            return (observable, _wrappedClient);
+        }
+
+        public async Task ConnectAsync(IClientOptions options, IWillMessage willMessage)
+        {
+            await InitializeClient();
+
+            if (IsConnected)
+            {
+                throw new Exception("MQTT client already connected. Disconnect before making new connection.");
+            }
+
+            await ConnectClientAlreadyInitializedAsync(options, willMessage);
+
+        }
+
+        private async Task<Exception> ConnectClientAlreadyInitializedAsync(IClientOptions options, IWillMessage willMessage)
+        {
+            try
+            {
+                await _client.ConnectAsync(UnwrapOptions(options, willMessage));
+                IsConnected = true;
+            }
+            catch (Exception ex)
+            {
+                IsConnected = false;
+                return ex;
+            }
+            return null;
+        }
+
+        public async Task DisconnectAsync()
+        {
+            if (_client != null && _wrappedClient != null && _client.IsConnected)
+            {
+                _mqttObserver?.OnCompleted();
+
+                await CleanUp(_client);
+            }
         }
 
         private async Task CleanUp(IMqttClient client)
@@ -133,13 +174,17 @@ namespace MQTTClientRx.Service
 
                 var result = await Task.WhenAny(disconnectTask, timeOutTask).ConfigureAwait(false);
 
-                Debug.WriteLine($"Disconnected Successfully: {result == disconnectTask}");
+                Debug.WriteLine(result == timeOutTask
+                    ? "Disconnect Timed Out"
+                    : "Disconnected Successfully");
+
+                _mqttObserver = null;
             }
         }
 
         private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions, IWillMessage willMessage)
         {
-            var wrappedWillMessage = WrapWillMessage(willMessage);
+            //var wrappedWillMessage = WrapWillMessage(willMessage);
 
             if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
             {
@@ -227,6 +272,26 @@ namespace MQTTClientRx.Service
             switch (connectionType)
             {
                 default: throw new ArgumentOutOfRangeException(nameof(connectionType), connectionType, null);
+            }
+        }
+
+        private async Task InitializeClient()
+        {
+            if (_client == null)
+            {
+                _client = new MqttClientFactory().CreateMqttClient();
+            }
+            //else
+            //{
+            //    if (_client.IsConnected)
+            //    {
+            //        await CleanUp(_client);
+            //    }
+            //}
+
+            if (_wrappedClient == null)
+            {
+                _wrappedClient = new MQTTClient(_client);
             }
         }
     }
