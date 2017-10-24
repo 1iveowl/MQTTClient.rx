@@ -14,7 +14,7 @@ namespace IMQTTClientRx.Service
             IEnumerable<ITopicFilter> topicFilters = null,
             IWillMessage willMessage = null);
 
-        Task ConnectAsync(IClientOptions options, IWillMessage willMessage);
+        Task<IMQTTClient> ConnectAsync(IClientOptions options, IWillMessage willMessage);
 
         Task DisconnectAsync();
     }

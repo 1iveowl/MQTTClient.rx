@@ -127,17 +127,18 @@ namespace MQTTClientRx.Service
             return (observable, _wrappedClient);
         }
 
-        public async Task ConnectAsync(IClientOptions options, IWillMessage willMessage)
+        public async Task<IMQTTClient> ConnectAsync(IClientOptions options, IWillMessage willMessage)
         {
             await InitializeClient();
 
             if (IsConnected)
             {
-                throw new Exception("MQTT client already connected. Disconnect before making new connection.");
+                throw new Exception("MQTT client already connected. Disconnect before making a new connection.");
             }
 
             await ConnectClientAlreadyInitializedAsync(options, willMessage);
 
+            return _wrappedClient;
         }
 
         private async Task<Exception> ConnectClientAlreadyInitializedAsync(IClientOptions options, IWillMessage willMessage)
