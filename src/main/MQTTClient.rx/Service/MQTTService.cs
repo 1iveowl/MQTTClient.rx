@@ -182,7 +182,7 @@ namespace MQTTClientRx.Service
                 return new MqttClientWebSocketOptions()
                 {
                     WillMessage = WrapWillMessage(willMessage),
-                    Uri = wrappedOptions.Url,
+                    Uri = !string.IsNullOrEmpty(wrappedOptions.Path) ? $"{wrappedOptions.Url}:{wrappedOptions.Port}/{wrappedOptions.Path}" : $"{wrappedOptions.Url}:{wrappedOptions.Port}",
                     CleanSession = wrappedOptions.CleanSession,
                     ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
                     TlsOptions =

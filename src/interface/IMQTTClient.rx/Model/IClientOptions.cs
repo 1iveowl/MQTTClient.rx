@@ -12,6 +12,8 @@ namespace IMQTTClientRx.Model
 
         string Url { get; }
 
+        string Path { get; }
+
         string UserName { get;}
 
         string Password { get;}
