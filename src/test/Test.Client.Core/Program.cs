@@ -36,7 +36,8 @@ namespace Test.Client.Core
                 Server = "broker.mqttdashboard.com",
                 //Port = 1883,
                 Port = 8000,
-                Url = "broker.mqttdashboard.com:8000",
+                Url = "broker.mqttdashboard.com",
+                Path = "mqtt",
                 //ConnectionType = ConnectionType.Tcp,
                 ConnectionType = ConnectionType.WebSocket
             };
