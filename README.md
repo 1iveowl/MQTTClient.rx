@@ -92,7 +92,7 @@ var mqttService = new MQTTService();
 
 var mqttClientOptions = new Options
 {
-    Uri = "mqtt://test.mosquitto.org:1883", //Test server
+	Uri = new Uri("mqtt://test.mosquitto.org:1883"), //Test server
 	ConnectionType = ConnectionType.Tcp
 };
 
@@ -151,7 +151,7 @@ _disposable = MQTTService.observableMessage.Subscribe(
 ```csharp
 var mqttClientOptions = new Options
 {
-	Uri = Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"), //Test server
+	Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"), //Test server
 	ConnectionType = ConnectionType.WebSocket
 };
 ```
