@@ -151,7 +151,7 @@ _disposable = MQTTService.observableMessage.Subscribe(
 ```csharp
 var mqttClientOptions = new Options
 {
-    Uri = Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"), //Test server
+	Uri = Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"), //Test server
 	ConnectionType = ConnectionType.WebSocket
 };
 ```
@@ -162,11 +162,11 @@ The library supports TLS and the option to Ignore certain types of errors and al
 ```csharp
 var mqttClientOptions = new Options
 {
-    Uri = "mqtt://test.mosquitto.org:1883", //Test server
+	Uri = "mqtt://test.mosquitto.org:1883", //Test server
 	UseTls = true,
-    IgnoreCertificateChainErrors = true,
-    IgnoreCertificateRevocationErrors = true,
-    AllowUntrustedCertificates = true,
+	IgnoreCertificateChainErrors = true,
+	IgnoreCertificateRevocationErrors = true,
+	AllowUntrustedCertificates = true,
 	ConnectionType = ConnectionType.Tcp
 };
 ```
