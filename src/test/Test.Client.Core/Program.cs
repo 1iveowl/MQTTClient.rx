@@ -31,30 +31,42 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                Server = "test.mosquitto.org",
+                //Server = "test.mosquitto.org",
                 //Server = "broker.hivemq.com",
-                Port = 1883,
-                ConnectionType = ConnectionType.Tcp
+                Uri = new Uri("mqtt://test.mosquitto.org:8883"),
+                UseTls = true,
+                IgnoreCertificateChainErrors = true,
+                IgnoreCertificateRevocationErrors = true,
+                AllowUntrustedCertificates = true,
+
+                //Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"),
+                //Server = "broker.mqttdashboard.com",
+                ////Port = 1883,
+                //Port = 8000,
+                //Url = "broker.mqttdashboard.com",
+                //Path = "mqtt",
+                ConnectionType = ConnectionType.Tcp,
+                //ConnectionType = ConnectionType.WebSocket
             };
 
             var topic1 = new TopicFilter
             {
-                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
+                QualityOfServiceLevel = QoSLevel.ExactlyOnce,
                 //Topic = "PP/#"
-                Topic = "#"
+                Topic = "/#"
             };
 
             var topic2 = new TopicFilter
             {
-                QualityOfServiceLevel = QoSLevel.ExactlyOnce,
+                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
                 //Topic = "EFM/#"
-                Topic = "/kobi22/#"
+                Topic = "MQTTClientRx/Test"
             };
 
             ITopicFilter[] topicFilters = {
 
                 topic1,
-                topic2
+                //topic2
             };
 
             var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
@@ -89,8 +101,8 @@ namespace Test.Client.Core
 
             var newMessage = new MQTTMessage
             {
-                Payload = Encoding.UTF8.GetBytes("Hello MQTT"),
-                QualityOfServiceLevel = QoSLevel.AtMostOnce,
+                Payload = Encoding.UTF8.GetBytes("Hello MQTT EO"),
+                QualityOfServiceLevel = QoSLevel.ExactlyOnce,
                 Retain = false,
                 Topic = "MQTTClientRx/Test"
             };

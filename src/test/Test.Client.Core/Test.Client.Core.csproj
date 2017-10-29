@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\interface\IMQTTClient.rx\IMQTTClientRx.csproj" />
     <ProjectReference Include="..\..\main\MQTTClientRx.netstandard20\MQTTClientRx.netstandard20.csproj" />
   </ItemGroup>
 

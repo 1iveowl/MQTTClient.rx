@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using IMQTTClientRx.Model;
+using IMQTTClientRx.Service;
 using MQTTClientRx.Service;
 using MQTTnet.Core.Diagnostics;
 using Test.Client.UWP.Model;
@@ -33,6 +34,7 @@ namespace Test.Client.UWP
     public sealed partial class MainPage : Page
     {
         private IDisposable _disposable;
+        private IMQTTService _mqttService;
         public MainPage()
         {
             this.InitializeComponent();
@@ -67,7 +69,7 @@ namespace Test.Client.UWP
 
         private void Button_OnClick(object sender, RoutedEventArgs e)
         {
-            var mqttService = new MQTTService();
+            _mqttService = new MQTTService();
 
             var mqttClientOptions = new Options
             {
@@ -92,26 +94,31 @@ namespace Test.Client.UWP
                 topic1,
             };
 
-            var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
-
+            var MQTTService = _mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
             _disposable = MQTTService
                 .observableMessage
+                .SubscribeOnDispatcher()
                 //.Throttle(TimeSpan.FromMilliseconds(100), Scheduler.Default)
                 .ObserveOnDispatcher().Subscribe(
-                msg =>
-                {
-                    textBlock.Text = Encoding.UTF8.GetString(msg.Payload);
-                },
-                ex =>
-                {
-                    textBlock.Text = "Exception";
-                },
-                () => {});
+                    msg =>
+                    {
+                        textBlock.Text = Encoding.UTF8.GetString(msg.Payload);
+                    },
+                    ex =>
+                    {
+                        textBlock.Text = "Exception";
+                    },
+                    () => { });
+
+            //var MQTTService = await mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters);
+
+
         }
 
         private void Stop_OnClick(object sender, RoutedEventArgs e)
         {
             _disposable.Dispose();
         }
+
     }
 }

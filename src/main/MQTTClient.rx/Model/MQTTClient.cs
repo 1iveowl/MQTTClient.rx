@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IMQTTClientRx.Model;
+using IMQTTClientRx.Service;
 using MQTTnet.Core;
 using MQTTnet.Core.Client;
 using MQTTnet.Core.Packets;
@@ -13,10 +14,12 @@ namespace MQTTClientRx.Model
     internal class MQTTClient : IMQTTClient
     {
         private readonly IMqttClient _mqttClient;
+        private readonly IMQTTService _mqttService;
 
-        internal MQTTClient(IMqttClient client)
+        internal MQTTClient(IMqttClient client, IMQTTService mqttService)
         {
             _mqttClient = client;
+            _mqttService = mqttService;
         }
         
         public async Task SubscribeAsync(IEnumerable<ITopicFilter> topicFilters)
@@ -36,6 +39,11 @@ namespace MQTTClientRx.Model
 
         public async Task PublishAsync(IMQTTMessage message)
         {
+            while (!_mqttService.IsConnected)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+            }
+
             await _mqttClient.PublishAsync(WrapMessage(message));
         }
 
@@ -46,12 +54,19 @@ namespace MQTTClientRx.Model
 
         private IList<TopicFilter> WrapTopicFilters(IEnumerable<ITopicFilter> topicFilters)
         {
-            return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, MapQosLevel(tFilter.QualityOfServiceLevel))).ToList();
+            return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, ConvertQosLevel(tFilter.QualityOfServiceLevel))).ToList();
         }
 
-        private MqttQualityOfServiceLevel MapQosLevel(QoSLevel qosLvl)
+        private MqttQualityOfServiceLevel ConvertQosLevel(QoSLevel qosLvl)
         {
-            return (MqttQualityOfServiceLevel)qosLvl;
+            switch (qosLvl)
+            {
+                case QoSLevel.AtMostOnce: return MqttQualityOfServiceLevel.AtMostOnce;
+                case QoSLevel.AtLeastOnce: return MqttQualityOfServiceLevel.AtLeastOnce;
+                case QoSLevel.ExactlyOnce: return MqttQualityOfServiceLevel.ExactlyOnce;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(qosLvl), qosLvl, null);
+            }
         }
 
         private MqttApplicationMessage WrapMessage(IMQTTMessage message)
@@ -60,7 +75,7 @@ namespace MQTTClientRx.Model
             return new MqttApplicationMessage(
                     message.Topic, 
                     message.Payload, 
-                    MapQosLevel(message.QualityOfServiceLevel), 
+                    ConvertQosLevel(message.QualityOfServiceLevel), 
                     retain:message.Retain);
         }
     }
