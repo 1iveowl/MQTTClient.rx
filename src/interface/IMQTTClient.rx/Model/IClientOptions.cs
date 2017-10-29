@@ -6,13 +6,14 @@ namespace IMQTTClientRx.Model
 {
     public interface IClientOptions : ITlsOptions
     {
-        string Server { get;}
+        Uri Uri { get; }
+        //string Server { get;}
 
-        int? Port { get;}
+        //int? Port { get;}
 
-        string Url { get; }
+        //string Url { get; }
 
-        string Path { get; }
+        //string Path { get; }
 
         string UserName { get;}
 

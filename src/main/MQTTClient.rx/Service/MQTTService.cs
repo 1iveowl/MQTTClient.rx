@@ -154,10 +154,10 @@ namespace MQTTClientRx.Service
                 return new MqttClientTcpOptions()
                 {
                     WillMessage = WrapWillMessage(willMessage),
-                    Server = wrappedOptions.Server,
+                    Server = wrappedOptions.Uri.Host,
                     CleanSession = wrappedOptions.CleanSession,
                     ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
-                    Port = wrappedOptions.Port,
+                    Port = wrappedOptions.Uri.Port,
                     TlsOptions =
                     {
                         UseTls = wrappedOptions.UseTls,
@@ -182,7 +182,7 @@ namespace MQTTClientRx.Service
                 return new MqttClientWebSocketOptions()
                 {
                     WillMessage = WrapWillMessage(willMessage),
-                    Uri = !string.IsNullOrEmpty(wrappedOptions.Path) ? $"{wrappedOptions.Url}:{wrappedOptions.Port}/{wrappedOptions.Path}" : $"{wrappedOptions.Url}:{wrappedOptions.Port}",
+                    Uri = wrappedOptions.Uri.AbsoluteUri,
                     CleanSession = wrappedOptions.CleanSession,
                     ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
                     TlsOptions =
