@@ -104,7 +104,8 @@ namespace MQTTClientRx.Service
                         {
                             try
                             {
-                                await _client.ConnectAsync(UnwrapOptions(options, willMessage));
+                                var opt = UnwrapOptions(options, willMessage);
+                                await _client.ConnectAsync(opt);
                                 IsConnected = true;
                             }
                             catch (Exception ex)
