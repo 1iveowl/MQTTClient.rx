@@ -154,7 +154,7 @@ var mqttClientOptions = new Options
     Uri = Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"), //Test server
 	ConnectionType = ConnectionType.WebSocket
 };
-csharp
+```
 
 #### Using TLS
 The library supports TLS and the option to Ignore certain types of errors and allow untrusted certificates which is powerful for testing purposes and should be used with care in non-test cases.
@@ -169,7 +169,7 @@ var mqttClientOptions = new Options
     AllowUntrustedCertificates = true,
 	ConnectionType = ConnectionType.Tcp
 };
-csharp
+```
 
 #### Subscribing to more Topic Filters
 
