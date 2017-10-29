@@ -92,8 +92,8 @@ var mqttService = new MQTTService();
 
 var mqttClientOptions = new Options
 {
-    Server = "test.mosquitto.org", //Test server
-    Port = 1883
+    Uri = "mqtt://test.mosquitto.org:1883", //Test server
+	ConnectionType = ConnectionType.Tcp
 };
 
 var topic1 = new TopicFilter
@@ -146,6 +146,31 @@ _disposable = MQTTService.observableMessage.Subscribe(
         Console.WriteLine("Completed...");
     });;
 ```
+#### Connecting to Webesocket
+
+```csharp
+var mqttClientOptions = new Options
+{
+	Uri = Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"), //Test server
+	ConnectionType = ConnectionType.WebSocket
+};
+```
+
+#### Using TLS
+The library supports TLS and the option to Ignore certain types of errors and allow untrusted certificates which is powerful for testing purposes and should be used with care in non-test cases.
+
+```csharp
+var mqttClientOptions = new Options
+{
+	Uri = "mqtt://test.mosquitto.org:1883", //Test server
+	UseTls = true,
+	IgnoreCertificateChainErrors = true,
+	IgnoreCertificateRevocationErrors = true,
+	AllowUntrustedCertificates = true,
+	ConnectionType = ConnectionType.Tcp
+};
+```
+
 #### Subscribing to more Topic Filters
 
 Subscribing to other Topic Filters is easy:
