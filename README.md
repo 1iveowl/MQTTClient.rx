@@ -162,7 +162,7 @@ The library supports TLS and the option to Ignore certain types of errors and al
 ```csharp
 var mqttClientOptions = new Options
 {
-	Uri = "mqtt://test.mosquitto.org:1883", //Test server
+	Uri = new Uri("mqtt://test.mosquitto.org:1883"), //Test server
 	UseTls = true,
 	IgnoreCertificateChainErrors = true,
 	IgnoreCertificateRevocationErrors = true,

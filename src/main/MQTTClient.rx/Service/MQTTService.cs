@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
+using Microsoft.Extensions.DependencyInjection;
 using MQTTClientRx.Extension;
 using MQTTClientRx.Model;
 using MQTTnet;
@@ -37,7 +38,13 @@ namespace MQTTClientRx.Service
         {
             IsConnected = false;
 
-            _client = new MqttClientFactory().CreateMqttClient();
+            var services = new ServiceCollection()
+                .AddMqttClient()
+                .AddLogging()
+                .BuildServiceProvider();
+
+            _client = services.GetRequiredService<IMqttClient>();
+
             _wrappedClient = new MQTTClient(_client, this);
 
             IsConnected = false;
@@ -45,7 +52,7 @@ namespace MQTTClientRx.Service
             var observable = Observable.Create<IMQTTMessage>(
                     async obs =>
                     {
-                        var disposableConnect = Observable.FromEventPattern(
+                        var disposableConnect = Observable.FromEventPattern<MqttClientConnectedEventArgs>(
                                 h => _client.Connected += h,
                                 h => _client.Connected -= h)
                             .Subscribe(
@@ -87,7 +94,7 @@ namespace MQTTClientRx.Service
                                 obs.OnError,
                                 obs.OnCompleted);
 
-                        var disposableDisconnect = Observable.FromEventPattern(
+                        var disposableDisconnect = Observable.FromEventPattern<MqttClientDisconnectedEventArgs>(
                                 h => _client.Disconnected += h,
                                 h => _client.Disconnected -= h)
                             .Subscribe(
@@ -146,79 +153,58 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private static MqttClientOptions UnwrapOptions(IClientOptions wrappedOptions, IWillMessage willMessage)
+        private static IMqttClientOptions UnwrapOptions(IClientOptions wrappedOptions, IWillMessage willMessage)
         {
-            //var wrappedWillMessage = WrapWillMessage(willMessage);
+            var optionsBuilder = new MqttClientOptionsBuilder();
 
             if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
             {
-                return new MqttClientTcpOptions()
-                {
-                    WillMessage = WrapWillMessage(willMessage),
-                    Server = wrappedOptions.Uri.Host,
-                    CleanSession = wrappedOptions.CleanSession,
-                    ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
-                    Port = wrappedOptions.Uri.Port,
-                    TlsOptions =
-                    {
-                        UseTls = wrappedOptions.UseTls,
-                        Certificates = wrappedOptions.Certificates?.ToList(),
-                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
-                        IgnoreCertificateRevocationErrors = wrappedOptions.IgnoreCertificateRevocationErrors,
-                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates
-                    },
-                    UserName = wrappedOptions.UserName,
-                    Password = wrappedOptions.Password,
-                    KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
-                        ? TimeSpan.FromSeconds(5)
-                        : wrappedOptions.KeepAlivePeriod,
-                    DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
-                        ? TimeSpan.FromSeconds(10)
-                        : wrappedOptions.DefaultCommunicationTimeout,
-                    ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
-                };
+                optionsBuilder.WithTcpServer(wrappedOptions.Uri.Host);
             }
             else
             {
-                return new MqttClientWebSocketOptions()
-                {
-                    WillMessage = WrapWillMessage(willMessage),
-                    Uri = wrappedOptions.Uri.AbsoluteUri,
-                    CleanSession = wrappedOptions.CleanSession,
-                    ClientId = wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty),
-                    TlsOptions =
-                    {
-                        UseTls = wrappedOptions.UseTls,
-                        Certificates = wrappedOptions.Certificates?.ToList(),
-                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
-                        IgnoreCertificateRevocationErrors = wrappedOptions.IgnoreCertificateRevocationErrors,
-                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates
-                    },
-                    UserName = wrappedOptions.UserName,
-                    Password = wrappedOptions.Password,
-                    KeepAlivePeriod = wrappedOptions.KeepAlivePeriod == default(TimeSpan)
-                        ? TimeSpan.FromSeconds(5)
-                        : wrappedOptions.KeepAlivePeriod,
-                    DefaultCommunicationTimeout = wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
-                        ? TimeSpan.FromSeconds(10)
-                        : wrappedOptions.DefaultCommunicationTimeout,
-                    ProtocolVersion = UnwrapProtocolVersion(wrappedOptions.ProtocolVersion)
-                };
+                optionsBuilder.WithWebSocketServer(wrappedOptions.Uri.AbsoluteUri);
             }
 
-        }
+            return optionsBuilder
+                .WithWillMessage(WrapWillMessage(willMessage))
+                .WithCleanSession(wrappedOptions.CleanSession)
+                .WithClientId(wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty))
+                .WithTls(wrappedOptions.AllowUntrustedCertificates, wrappedOptions.IgnoreCertificateChainErrors,
+                    wrappedOptions.IgnoreCertificateChainErrors, UnwrapCertificates(wrappedOptions.Certificates))
+                .WithProtocolVersion(UnwrapProtocolVersion(wrappedOptions.ProtocolVersion))
+                .WithCommunicationTimeout(wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                    ? TimeSpan.FromSeconds(10)
+                    : wrappedOptions.DefaultCommunicationTimeout)
+                .WithKeepAlivePeriod(wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                    ? TimeSpan.FromSeconds(5)
+                    : wrappedOptions.KeepAlivePeriod)
+                .WithCredentials(wrappedOptions.UserName, wrappedOptions.Password)
+                .Build();
+       }
 
         private static MqttApplicationMessage WrapWillMessage(IWillMessage message)
         {
             if (message != null)
             {
-                return new MqttApplicationMessage(
-                    message.Topic,
-                    message.Payload,
-                    ConvertToQualityOfServiceLevel(message.QualityOfServiceLevel),
-                    message.Retain);
+                var applicationMessage = new MqttApplicationMessageBuilder();
+
+                applicationMessage
+                    .WithTopic(message.Topic)
+                    .WithPayload(message.Payload)
+                    .WithRetainFlag(message.Retain);
+
+                ConvertToQualityOfServiceLevel(applicationMessage, message.QualityOfServiceLevel);
+
+                return applicationMessage.Build();
             }
+
             return null;
+        }
+
+        private static byte[][] UnwrapCertificates(IEnumerable<byte[]> certificates)
+        {
+            return certificates?.ToArray();
         }
 
         private static MqttProtocolVersion UnwrapProtocolVersion(ProtocolVersion protocolVersion)
@@ -251,13 +237,19 @@ namespace MQTTClientRx.Service
             }
         }
 
-        private static MqttQualityOfServiceLevel ConvertToQualityOfServiceLevel(QoSLevel qos)
+        private static void ConvertToQualityOfServiceLevel(MqttApplicationMessageBuilder builder, QoSLevel qos)
         {
             switch (qos)
             {
-                case QoSLevel.AtMostOnce: return MqttQualityOfServiceLevel.AtMostOnce;
-                case QoSLevel.AtLeastOnce: return MqttQualityOfServiceLevel.AtLeastOnce;
-                case QoSLevel.ExactlyOnce: return MqttQualityOfServiceLevel.ExactlyOnce;
+                case QoSLevel.AtMostOnce:
+                    builder.WithAtMostOnceQoS();
+                    break;
+                case QoSLevel.AtLeastOnce:
+                    builder.WithAtLeastOnceQoS();
+                    break;
+                case QoSLevel.ExactlyOnce:
+                    builder.WithExactlyOnceQoS();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(qos), qos, null);
             }

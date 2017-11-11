@@ -31,13 +31,11 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                //Server = "test.mosquitto.org",
-                //Server = "broker.hivemq.com",
-                Uri = new Uri("mqtt://test.mosquitto.org:8883"),
-                UseTls = true,
-                IgnoreCertificateChainErrors = true,
-                IgnoreCertificateRevocationErrors = true,
-                AllowUntrustedCertificates = true,
+                Uri = new Uri("mqtt://test.mosquitto.org:1883"),
+                //UseTls = true,
+                //IgnoreCertificateChainErrors = true,
+                //IgnoreCertificateRevocationErrors = true,
+                //AllowUntrustedCertificates = true,
 
                 //Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"),
                 //Server = "broker.mqttdashboard.com",
