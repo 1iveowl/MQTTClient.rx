@@ -204,13 +204,7 @@ namespace MQTTClientRx.Service
 
         private static byte[][] UnwrapCertificates(IEnumerable<byte[]> certificates)
         {
-            if (!certificates?.Any() ?? true)
-            {
-
-                return new List<byte[]> { new byte[0] }.ToArray();
-            }
-
-            return certificates.ToArray();
+            return certificates?.ToArray();
         }
 
         private static MqttProtocolVersion UnwrapProtocolVersion(ProtocolVersion protocolVersion)

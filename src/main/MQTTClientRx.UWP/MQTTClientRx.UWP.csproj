@@ -129,7 +129,7 @@
       <Version>6.0.1</Version>
     </PackageReference>
     <PackageReference Include="MQTTnet">
-      <Version>2.5.0</Version>
+      <Version>2.5.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>3.1.1</Version>
