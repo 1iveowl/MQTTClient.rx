@@ -206,10 +206,8 @@ namespace MQTTClientRx.Service
         {
             if (!certificates?.Any() ?? true)
             {
-                var a = new byte[0];
-                var b = a.ToArray();
 
-                return b;
+                return new List<byte[]> { new byte[0] }.ToArray();
             }
 
             return certificates.ToArray();

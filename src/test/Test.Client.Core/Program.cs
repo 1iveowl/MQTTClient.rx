@@ -31,7 +31,7 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                Uri = new Uri("ws://broker.hivemq.org:8080/mqtt"),
+                Uri = new Uri("mqtt://test.mosquitto.org:1883"),
                 //UseTls = true,
                 //IgnoreCertificateChainErrors = true,
                 //IgnoreCertificateRevocationErrors = true,
