@@ -31,20 +31,20 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                //Uri = new Uri("ws://broker.hivemq.org:8080/mqtt"),
+                Uri = new Uri("ws://broker.hivemq.org:8080/mqtt"),
                 //UseTls = true,
                 //IgnoreCertificateChainErrors = true,
                 //IgnoreCertificateRevocationErrors = true,
                 //AllowUntrustedCertificates = true,
 
-                Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"),
+                //Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"),
                 //Server = "broker.mqttdashboard.com",
                 ////Port = 1883,
                 //Port = 8000,
                 //Url = "broker.mqttdashboard.com",
                 //Path = "mqtt",
-                //ConnectionType = ConnectionType.Tcp,
-                ConnectionType = ConnectionType.WebSocket
+                ConnectionType = ConnectionType.Tcp,
+                //ConnectionType = ConnectionType.WebSocket
             };
 
             var topic1 = new TopicFilter

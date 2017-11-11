@@ -7,13 +7,6 @@ namespace IMQTTClientRx.Model
     public interface IClientOptions : ITlsOptions
     {
         Uri Uri { get; }
-        //string Server { get;}
-
-        //int? Port { get;}
-
-        //string Url { get; }
-
-        //string Path { get; }
 
         string UserName { get;}
 
