@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
-using Microsoft.Extensions.DependencyInjection;
 using MQTTClientRx.Extension;
 using MQTTClientRx.Model;
 using MQTTnet;
@@ -38,12 +37,14 @@ namespace MQTTClientRx.Service
         {
             IsConnected = false;
 
-            var services = new ServiceCollection()
-                .AddMqttClient()
-                .AddLogging()
-                .BuildServiceProvider();
+            var factory = new MqttFactory();
 
-            _client = services.GetRequiredService<IMqttClient>();
+            //var services = new ServiceCollection()
+            //    .AddMqttClient()
+            //    .AddLogging()
+            //    .BuildServiceProvider();
+
+            _client = factory.CreateMqttClient();
 
             _wrappedClient = new MQTTClient(_client, this);
 

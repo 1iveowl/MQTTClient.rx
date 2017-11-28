@@ -38,18 +38,18 @@ namespace Test.Client.UWP
         public MainPage()
         {
             this.InitializeComponent();
-            
-            MqttNetTrace.TraceMessagePublished += async (s, e) =>
+
+            MqttNetGlobalLog.LogMessagePublished += async (s, e) =>
             {
 
                 await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    var textItem = new TextBlock { Text = $">> [{DateTime.Now:hh:mm:ss.fff tt}] [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
+                    var textItem = new TextBlock { Text = $">> [{DateTime.Now:hh:mm:ss.fff tt}] [{e.TraceMessage.ThreadId}] [{e.TraceMessage.Source}] [{e.TraceMessage.Level}]: {e.TraceMessage.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
                     panel.Children.Add(textItem);
 
-                    if (e.Exception != null)
+                    if (e.TraceMessage.Exception != null)
                     {
-                        var textException = new TextBlock { Text = $"   {e.Exception}" };
+                        var textException = new TextBlock { Text = $"   {e.TraceMessage.Exception}" };
                         panel.Children.Add(textException);
                     }
                 });
