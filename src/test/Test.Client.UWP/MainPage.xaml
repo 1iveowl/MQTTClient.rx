@@ -12,7 +12,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Margin="12" Grid.Row="0">
+        <StackPanel Margin="36" Grid.Row="0">
             <Button x:Name="button" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Button_OnClick" >OK</Button>
             <TextBlock Text="Here" x:Name="textBlock"></TextBlock>
             <Button x:Name="Stop" HorizontalAlignment="Center" Click="Stop_OnClick">Stop</Button>
