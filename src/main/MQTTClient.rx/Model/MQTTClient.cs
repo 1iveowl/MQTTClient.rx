@@ -4,10 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
-using MQTTnet.Core;
-using MQTTnet.Core.Client;
-using MQTTnet.Core.Packets;
-using MQTTnet.Core.Protocol;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Protocol;
 
 namespace MQTTClientRx.Model
 {

@@ -21,7 +21,6 @@ using Windows.UI.Xaml.Navigation;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
 using MQTTClientRx.Service;
-using MQTTnet.Core.Diagnostics;
 using Test.Client.UWP.Model;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -39,29 +38,29 @@ namespace Test.Client.UWP
         {
             this.InitializeComponent();
 
-            MqttNetGlobalLog.LogMessagePublished += async (s, e) =>
-            {
+            //MqttNetGlobalLog.LogMessagePublished += async (s, e) =>
+            //{
 
-                await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    var textItem = new TextBlock { Text = $">> [{DateTime.Now:hh:mm:ss.fff tt}] [{e.TraceMessage.ThreadId}] [{e.TraceMessage.Source}] [{e.TraceMessage.Level}]: {e.TraceMessage.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
-                    panel.Children.Add(textItem);
+            //    await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            //    {
+            //        var textItem = new TextBlock { Text = $">> [{DateTime.Now:hh:mm:ss.fff tt}] [{e.TraceMessage.ThreadId}] [{e.TraceMessage.Source}] [{e.TraceMessage.Level}]: {e.TraceMessage.Message}", TextWrapping = TextWrapping.Wrap, FontSize = 12};
+            //        panel.Children.Add(textItem);
 
-                    if (e.TraceMessage.Exception != null)
-                    {
-                        var textException = new TextBlock { Text = $"   {e.TraceMessage.Exception}" };
-                        panel.Children.Add(textException);
-                    }
-                });
-                //var textItem = new TextBlock { Text = $">> [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}" };
-                //panel.Children.Add(textItem);
+            //        if (e.TraceMessage.Exception != null)
+            //        {
+            //            var textException = new TextBlock { Text = $"   {e.TraceMessage.Exception}" };
+            //            panel.Children.Add(textException);
+            //        }
+            //    });
+            //    //var textItem = new TextBlock { Text = $">> [{e.ThreadId}] [{e.Source}] [{e.Level}]: {e.Message}" };
+            //    //panel.Children.Add(textItem);
 
-                //if (e.Exception != null)
-                //{
-                //    var textException = new TextBlock { Text = $"   {e.Exception}" };
-                //    panel.Children.Add(textException);
-                //}
-            };
+            //    //if (e.Exception != null)
+            //    //{
+            //    //    var textException = new TextBlock { Text = $"   {e.Exception}" };
+            //    //    panel.Children.Add(textException);
+            //    //}
+            //};
 
         }
 

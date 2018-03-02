@@ -12,11 +12,9 @@ using IMQTTClientRx.Service;
 using MQTTClientRx.Extension;
 using MQTTClientRx.Model;
 using MQTTnet;
-using MQTTnet.Core;
-using MQTTnet.Core.Adapter;
-using MQTTnet.Core.Client;
-using MQTTnet.Core.Protocol;
-using MQTTnet.Core.Serializer;
+using MQTTnet.Client;
+using MQTTnet.Protocol;
+using MQTTnet.Serializer;
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -167,12 +165,18 @@ namespace MQTTClientRx.Service
                 optionsBuilder.WithWebSocketServer(wrappedOptions.Uri.AbsoluteUri);
             }
 
+            if (wrappedOptions.UseTls)
+            {
+                optionsBuilder
+                    .WithTls(wrappedOptions.AllowUntrustedCertificates, wrappedOptions.IgnoreCertificateChainErrors,
+                        wrappedOptions.IgnoreCertificateChainErrors, UnwrapCertificates(wrappedOptions.Certificates));
+            }
+
             return optionsBuilder
                 .WithWillMessage(WrapWillMessage(willMessage))
                 .WithCleanSession(wrappedOptions.CleanSession)
                 .WithClientId(wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty))
-                .WithTls(wrappedOptions.AllowUntrustedCertificates, wrappedOptions.IgnoreCertificateChainErrors,
-                    wrappedOptions.IgnoreCertificateChainErrors, UnwrapCertificates(wrappedOptions.Certificates))
+
                 .WithProtocolVersion(UnwrapProtocolVersion(wrappedOptions.ProtocolVersion))
                 .WithCommunicationTimeout(wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
                     ? TimeSpan.FromSeconds(10)
