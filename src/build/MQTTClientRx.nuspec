@@ -13,7 +13,7 @@
     <description>
       MQTT Client utilizing the power of Reactive Extensions</description>
     <releaseNotes>
-      Updated to MQTTnet 2.5.3
+      Updated to MQTTnet 2.7.0
       Moved to URI instead of Url, Broker, Port parameters, which was becoming a mess
       Fixed issue with connecting on UWP
       Stability and performance improvements. 
@@ -23,20 +23,20 @@
     <dependencies>
       <group targetFramework="netstandard1.3">
   
-          <dependency id="MQTTnet" version="2.5.3"/>
+          <dependency id="MQTTnet" version="2.7.0"/>
           <dependency id="System.Reactive" version="3.1.1"/>
           <dependency id="System.ValueTuple" version="4.4.0"/>
  
       </group>
     
       <group targetFramework="netstandard2.0">
-          <dependency id="MQTTnet" version="2.5.3"/>
+          <dependency id="MQTTnet" version="2.7.0"/>
           <dependency id="System.Reactive" version="3.1.1"/>
       </group>
 
       <group targetFramework="uap10.0">
-        <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.0.2" />
-        <dependency id="MQTTnet" version="2.5.3"/>
+        <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.0.7" />
+        <dependency id="MQTTnet" version="2.7.0"/>
       </group>
     </dependencies>
   </metadata>
