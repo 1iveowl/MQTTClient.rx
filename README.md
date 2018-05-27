@@ -40,21 +40,24 @@ internal class MQTTMessage : IMQTTMessage
 ```csharp
 internal class Options : IClientOptions
 {
-    public string Server { get; internal set; }
-    public int? Port { get; internal set; }
+    public Uri Uri { get; internal set; }
     public string UserName { get; internal set; }
     public string Password { get; internal set; }
     public string ClientId { get; internal set; }
     public bool CleanSession { get; internal set; }
     public TimeSpan KeepAlivePeriod { get; internal set; }
     public TimeSpan DefaultCommunicationTimeout { get; internal set; }
-    public ProtocolVersion ProcolVersion {get; internal set;}
+    public ProtocolVersion ProtocolVersion {get; internal set;}
 	public ConnectionType ConnectionType { get; internal set; }
 
 	// TlsOptions
     public bool UseTls { get; internal set; }
     public bool CheckCertificateRevocation { get; internal set; }
     public IEnumerable<byte[]> Certificates { get; internal set; }
+    public bool IgnoreCertificateChainErrors { get; internal set; }
+    public bool IgnoreCertificateRevocationErrors { get; internal set; }
+    public bool AllowUntrustedCertificates { get; internal set; }
+    
 }
 ```
 
