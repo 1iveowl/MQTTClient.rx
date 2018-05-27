@@ -3,7 +3,7 @@
   <metadata>
     <id>MQTTClientRx</id>
     <version>0</version>
-    <title>MQTT Client Rx - .NET Standard 1.3/2.0</title>
+    <title>MQTT Client Rx for .NET Standard 2.0+</title>
     <authors>Jasper H. Bojsen</authors>
     <owners>Jasper H. Bojsen</owners>
     <licenseUrl>https://github.com/1iveowl/MQTTClient.rx/blob/master/LICENSE.md</licenseUrl>
@@ -13,41 +13,35 @@
     <description>
       MQTT Client utilizing the power of Reactive Extensions</description>
     <releaseNotes>
-      Updated to MQTTnet 2.7.0
+      Now only support .NET Standard 2.0+ (for earliers support use versions previous to version 3.0.0.
+      Updated to MQTTnet 2.7.5
+      Updated to System.Reactive 4.0.0
       Moved to URI instead of Url, Broker, Port parameters, which was becoming a mess
       Fixed issue with connecting on UWP
       Stability and performance improvements. 
-      Added support for WebSocket based MQTT connection</releaseNotes>
-    <copyright>Copyright 2017</copyright>
-    <tags>mqtt client rx reactivex netstandard14 netstandard20</tags>
+      Added support for WebSocket based MQTT connection
+    </releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>mqtt client rx reactivex netstandard20</tags>
     <dependencies>
-      <group targetFramework="netstandard1.3">
-  
-          <dependency id="MQTTnet" version="2.7.0"/>
-          <dependency id="System.Reactive" version="3.1.1"/>
-          <dependency id="System.ValueTuple" version="4.4.0"/>
- 
-      </group>
     
       <group targetFramework="netstandard2.0">
-          <dependency id="MQTTnet" version="2.7.0"/>
-          <dependency id="System.Reactive" version="3.1.1"/>
+        <dependency id="MQTTnet" version="2.7.5"/>
+        <dependency id="System.Reactive" version="4.0.0"/>
       </group>
 
-      <group targetFramework="uap10.0">
-        <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.0.7" />
-        <dependency id="MQTTnet" version="2.7.0"/>
-      </group>
+      <!--<group targetFramework="uap10.0">
+        <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.1.4" />
+        <dependency id="MQTTnet" version="2.7.5"/>
+      </group>-->
     </dependencies>
   </metadata>
   <files>
-        <file src="..\main\MQTTClient.rx\bin\Release\netstandard1.3\MQTTClientRx.*" target="lib\netstandard1.3\" />
-        <file src="..\main\MQTTClient.rx\bin\Release\netstandard1.3\IMQTTClientRx.*" target="lib\netstandard1.3\" />
-  
-        <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\MQTTClientRx.*" target="lib\netstandard2.0\" />
-        <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\IMQTTClientRx.*" target="lib\netstandard2.0\" />
 
-      <file src="..\main\MQTTClientRx.UWP\bin\Release\MQTTClientRx.*" target="lib\uap10\" />
-      <file src="..\main\MQTTClientRx.UWP\bin\Release\IMQTTClientRx.*" target="lib\uap10\" />
+      <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\MQTTClientRx.*" target="lib\netstandard2.0\" />
+      <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\IMQTTClientRx.*" target="lib\netstandard2.0\" />
+
+      <!--<file src="..\main\MQTTClientRx.UWP\bin\Release\MQTTClientRx.*" target="lib\uap10\" />
+      <file src="..\main\MQTTClientRx.UWP\bin\Release\IMQTTClientRx.*" target="lib\uap10\" />-->
     </files>
 </package>
