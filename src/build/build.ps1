@@ -9,9 +9,9 @@ if ([string]::IsNullOrEmpty($version)) {$version = "0.0.1"}
 
 $msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
 &$msbuild ..\interface\IMQTTClient.rx\IMQTTClientRx.csproj /t:Build /p:Configuration="Release"
-&$msbuild ..\main\MQTTClient.rx\MQTTClientRx.csproj /t:Build /p:Configuration="Release"
+#&$msbuild ..\main\MQTTClient.rx\MQTTClientRx.csproj /t:Build /p:Configuration="Release"
 &$msbuild ..\main\MQTTClientRx.netstandard20\MQTTClientRx.netstandard20.csproj /t:Build /p:Configuration="Release"
-&$msbuild ..\main\MQTTClientRx.UWP\MQTTClientRx.UWP.csproj /t:Build /p:Configuration="Release"
+#&$msbuild ..\main\MQTTClientRx.UWP\MQTTClientRx.UWP.csproj /t:Build /p:Configuration="Release"
 
 
 Remove-Item .\NuGet -Force -Recurse
