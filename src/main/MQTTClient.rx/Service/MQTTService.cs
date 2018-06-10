@@ -37,11 +37,6 @@ namespace MQTTClientRx.Service
 
             var factory = new MqttFactory();
 
-            //var services = new ServiceCollection()
-            //    .AddMqttClient()
-            //    .AddLogging()
-            //    .BuildServiceProvider();
-
             _client = factory.CreateMqttClient();
 
             _wrappedClient = new MQTTClient(_client, this);

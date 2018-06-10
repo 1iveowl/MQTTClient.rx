@@ -70,12 +70,14 @@ namespace MQTTClientRx.Model
 
         private MqttApplicationMessage WrapMessage(IMQTTMessage message)
         {
-            
-            return new MqttApplicationMessage(
-                    message.Topic, 
-                    message.Payload, 
-                    ConvertQosLevel(message.QualityOfServiceLevel), 
-                    retain:message.Retain);
+            return new MqttApplicationMessage
+            {
+                Payload = message.Payload,
+                QualityOfServiceLevel = ConvertQosLevel(message.QualityOfServiceLevel),
+                Retain = message.Retain,
+                Topic = message.Topic
+            };
+
         }
     }
 }
