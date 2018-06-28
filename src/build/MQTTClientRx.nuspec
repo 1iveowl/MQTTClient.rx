@@ -26,7 +26,7 @@
     <dependencies>
     
       <group targetFramework="netstandard2.0">
-        <dependency id="MQTTnet" version="2.8.0-alpha5"/>
+        <dependency id="MQTTnet" version="2.8.0-rc4"/>
         <dependency id="System.Reactive" version="4.0.0"/>
       </group>
 
