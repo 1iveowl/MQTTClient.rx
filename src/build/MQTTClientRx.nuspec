@@ -14,7 +14,7 @@
       MQTT Client utilizing the power of Reactive Extensions</description>
     <releaseNotes>
       Now only support .NET Standard 2.0+ (for earliers support use versions previous to version 3.0.0.
-      Updated to MQTTnet 2.8.0
+      Updated to MQTTnet 2.8.1
       Updated to System.Reactive 4.0.0
       Moved to URI instead of Url, Broker, Port parameters, which was becoming a mess
       Fixed issue with connecting on UWP
@@ -26,7 +26,7 @@
     <dependencies>
     
       <group targetFramework="netstandard2.0">
-        <dependency id="MQTTnet" version="2.8.0-rc4"/>
+        <dependency id="MQTTnet" version="2.8.1"/>
         <dependency id="System.Reactive" version="4.0.0"/>
       </group>
 
