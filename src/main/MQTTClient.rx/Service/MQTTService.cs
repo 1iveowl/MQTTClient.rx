@@ -104,8 +104,15 @@ namespace MQTTClientRx.Service
                             try
                             {
                                 var opt = UnwrapOptions(options, willMessage);
-                                await _client.ConnectAsync(opt);
-                                IsConnected = true;
+                                var connectResult = await _client.ConnectAsync(opt);
+
+                                IsConnected = true; //connectResult.IsSessionPresent;
+
+                                //if (!IsConnected)
+                                //{
+                                //    obs.OnError(new Exception("Unable to connect"));
+                                //}
+
                             }
                             catch (Exception ex)
                             {
@@ -151,7 +158,7 @@ namespace MQTTClientRx.Service
 
             if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
             {
-                optionsBuilder.WithTcpServer(wrappedOptions.Uri.Host);
+                optionsBuilder.WithTcpServer(wrappedOptions.Uri.Host, wrappedOptions.Uri.Port);
             }
             else
             {
@@ -161,8 +168,12 @@ namespace MQTTClientRx.Service
             if (wrappedOptions.UseTls)
             {
                 optionsBuilder
-                    .WithTls(wrappedOptions.AllowUntrustedCertificates, wrappedOptions.IgnoreCertificateChainErrors,
-                        wrappedOptions.IgnoreCertificateChainErrors, UnwrapCertificates(wrappedOptions.Certificates));
+                    .WithTls(new MqttClientOptionsBuilderTlsParameters
+                    {
+                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates,
+                        Certificates = UnwrapCertificates(wrappedOptions.Certificates),
+                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                    });
             }
 
             return optionsBuilder

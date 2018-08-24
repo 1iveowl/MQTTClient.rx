@@ -19,6 +19,7 @@ namespace IMQTTClientRx.Model
         TimeSpan KeepAlivePeriod { get;}
 
         TimeSpan DefaultCommunicationTimeout { get;}
+
         ProtocolVersion ProtocolVersion { get; }
 
         ConnectionType ConnectionType { get; }
