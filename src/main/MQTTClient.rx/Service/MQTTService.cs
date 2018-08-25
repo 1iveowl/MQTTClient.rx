@@ -42,7 +42,7 @@ namespace MQTTClientRx.Service
             IsConnected = false;
 
             var observable = Observable.Create<IMQTTMessage>(
-                    async obs =>
+                    obs =>
                     {
                         var disposableConnect = Observable.FromEventPattern<MqttClientConnectedEventArgs>(
                                 h => _client.Connected += h,
@@ -99,34 +99,69 @@ namespace MQTTClientRx.Service
                                 obs.OnError,
                                 obs.OnCompleted);
 
-                        if (!IsConnected)
+                        var observableAsyncConnect = Observable.FromAsync(async cancellationToken =>
                         {
-                            try
+                            if (!IsConnected)
                             {
-                                var opt = UnwrapOptions(options, willMessage);
-                                var connectResult = await _client.ConnectAsync(opt);
+                                try
+                                {
+                                    var opt = UnwrapOptions(options, willMessage);
+                                    var connectResult = await _client.ConnectAsync(opt);
 
-                                IsConnected = true; //connectResult.IsSessionPresent;
+                                    IsConnected = connectResult.IsSessionPresent;
 
-                                //if (!IsConnected)
-                                //{
-                                //    obs.OnError(new Exception("Unable to connect"));
-                                //}
+                                    if (!IsConnected)
+                                    {
+                                        obs.OnError(new Exception("Unable to connect"));
+                                    }
 
+                                }
+                                catch (Exception ex)
+                                {
+                                    IsConnected = false;
+                                    obs.OnError(ex);
+
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                IsConnected = false;
-                                obs.OnError(ex);
+                        });
 
-                            }
-                        }
+                        var disposableAsyncConnect = observableAsyncConnect.Subscribe(_ =>
+                        {
+
+                        },
+                        obs.OnError,
+                        obs.OnCompleted);
+
+
+                        //if (!IsConnected)
+                        //{
+                        //    try
+                        //    {
+                        //        var opt = UnwrapOptions(options, willMessage);
+                        //        var connectResult = await _client.ConnectAsync(opt);
+
+                        //        IsConnected = true; //connectResult.IsSessionPresent;
+
+                        //        //if (!IsConnected)
+                        //        //{
+                        //        //    obs.OnError(new Exception("Unable to connect"));
+                        //        //}
+
+                        //    }
+                        //    catch (Exception ex)
+                        //    {
+                        //        IsConnected = false;
+                        //        obs.OnError(ex);
+
+                        //    }
+                        //}
 
                         return new CompositeDisposable(
                             Disposable.Create(async () => { await CleanUp(_client); }),
                             disposableMessage,
                             disposableConnect,
-                            disposableDisconnect);
+                            disposableDisconnect,
+                            disposableAsyncConnect);
                     })
                 .FinallyAsync(async () => { await CleanUp(_client); })
                 .Publish().RefCount();
