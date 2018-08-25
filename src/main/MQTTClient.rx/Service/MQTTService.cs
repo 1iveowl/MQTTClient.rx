@@ -129,8 +129,7 @@ namespace MQTTClientRx.Service
                         {
 
                         },
-                        obs.OnError,
-                        obs.OnCompleted);
+                        obs.OnError);
 
 
                         //if (!IsConnected)
