@@ -51,31 +51,9 @@ namespace MQTTClientRx.Model
             return WrapTopicFilters(topicFilters).Select(x => x.Topic).ToArray();
         }
 
-        private IEnumerable<TopicFilter> WrapTopicFilters(IEnumerable<ITopicFilter> topicFilters)
+        private IList<TopicFilter> WrapTopicFilters(IEnumerable<ITopicFilter> topicFilters)
         {
-            return topicFilters.Select(tFilter =>
-            {
-                var tf = new TopicFilterBuilder().WithTopic(tFilter.Topic);
-
-                switch (tFilter.QualityOfServiceLevel)
-                {
-                    case QoSLevel.AtMostOnce:
-                        tf.WithAtMostOnceQoS();
-                        break;
-                    case QoSLevel.AtLeastOnce:
-                        tf.WithAtLeastOnceQoS();
-                        break;
-                    case QoSLevel.ExactlyOnce:
-                        tf.WithExactlyOnceQoS();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                return tf.Build();
-            });
-
-            //return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, ConvertQosLevel(tFilter.QualityOfServiceLevel))).ToList();
+            return topicFilters.Select(tFilter => new TopicFilter(tFilter.Topic, ConvertQosLevel(tFilter.QualityOfServiceLevel))).ToList();
         }
 
         private MqttQualityOfServiceLevel ConvertQosLevel(QoSLevel qosLvl)

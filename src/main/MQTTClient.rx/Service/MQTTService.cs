@@ -103,6 +103,7 @@ namespace MQTTClientRx.Service
                         {
                             if (!IsConnected)
                             {
+<<<<<<< HEAD
                                 try
                                 {
                                     var opt = UnwrapOptions(options, willMessage);
@@ -120,6 +121,16 @@ namespace MQTTClientRx.Service
                                 {
                                     IsConnected = false;
                                     obs.OnError(ex);
+=======
+                                var opt = UnwrapOptions(options, willMessage);
+                                await _client.ConnectAsync(opt);
+                                IsConnected = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                IsConnected = false;
+                                obs.OnError(ex);
+>>>>>>> parent of bb8d930... adapting to MQTT Client 2.8.2
 
                                 }
                             }
@@ -192,7 +203,7 @@ namespace MQTTClientRx.Service
 
             if (wrappedOptions.ConnectionType == ConnectionType.Tcp)
             {
-                optionsBuilder.WithTcpServer(wrappedOptions.Uri.Host, wrappedOptions.Uri.Port);
+                optionsBuilder.WithTcpServer(wrappedOptions.Uri.Host);
             }
             else
             {
@@ -202,12 +213,8 @@ namespace MQTTClientRx.Service
             if (wrappedOptions.UseTls)
             {
                 optionsBuilder
-                    .WithTls(new MqttClientOptionsBuilderTlsParameters
-                    {
-                        AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates,
-                        Certificates = UnwrapCertificates(wrappedOptions.Certificates),
-                        IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
-                    });
+                    .WithTls(wrappedOptions.AllowUntrustedCertificates, wrappedOptions.IgnoreCertificateChainErrors,
+                        wrappedOptions.IgnoreCertificateChainErrors, UnwrapCertificates(wrappedOptions.Certificates));
             }
 
             return optionsBuilder

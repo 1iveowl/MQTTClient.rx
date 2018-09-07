@@ -32,7 +32,6 @@ namespace Test.Client.Core
             var mqttClientOptions = new Options
             {
                 Uri = new Uri("mqtt://test.mosquitto.org:1883"),
-
                 //UseTls = true,
                 //IgnoreCertificateChainErrors = true,
                 //IgnoreCertificateRevocationErrors = true,
@@ -89,7 +88,7 @@ namespace Test.Client.Core
                 },
                 ex =>
                 {
-                    Console.WriteLine($"{ex.Message} : inner {ex?.InnerException?.Message}");
+                    Console.WriteLine($"{ex.Message} : inner {ex.InnerException.Message}");
                 },
                 () =>
                 {
