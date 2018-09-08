@@ -14,7 +14,7 @@ This project is based on [MQTTnet](https://github.com/chkr1011/MQTTnet) by Chris
 with observable streams, while MQTT is a protocol that produces asynchronous streams.
 
 ## Version 3.2 and later
-This version introduced some breaking changes. See examples below for how to use this version.
+This version introduced some breaking changes. See examples below for how to use this version. It also includes a number of stability and performance improvements and bug fixes. And, the code have been cleaned up quite a bit.
 
 ## How to use
 Using the library is easy. Rx makes is easy to write code in a declarative manager which in IMHO is more elegant that the alternatives. 
