@@ -18,7 +18,7 @@ namespace MQTTClientRx.Service
         internal IClientOptions ClientOptions { get; private set; }
         internal IWillMessage WillMessage { get; private set; }
 
-        public bool IsConnected => _wrappedClient.IsConnected;
+        public bool IsConnected => _wrappedClient?.IsConnected ?? false;
 
         public (IObservable<IMQTTMessage> observableMessage, IMQTTClient client)
             CreateObservableMQTTClient(
