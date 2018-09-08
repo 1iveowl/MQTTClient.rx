@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Reactive;
 using System.Threading.Tasks;
-using IMQTTClientRx.Service;
 
 namespace IMQTTClientRx.Model
 {
-    public interface IMQTTClient
+    public interface IMQTTClient : IDisposable
     {
-        Task SubscribeAsync(IEnumerable<ITopicFilter> topicFilters);
-        Task UnsubscribeAsync(IEnumerable<ITopicFilter> topicFilters);
-        Task UnsubscribeAsync(string[] topics);
+        bool IsConnected { get; }
+
+        IObservable<Unit> ObservableConnect { get; }
+        IObservable<bool> ObservableDisconnect { get; }
+        IObservable<IMQTTMessage> ObservableMessage { get; }
+
+        Task ConnectAsync();
+        Task DisconnectAsync();
+        Task SubscribeAsync(params ITopicFilter [] topicFilters);
+        Task UnsubscribeAsync(params ITopicFilter [] topicFilters);
+        Task UnsubscribeAsync(params string[] topics);
         Task PublishAsync(IMQTTMessage message);
+        
     }
 }

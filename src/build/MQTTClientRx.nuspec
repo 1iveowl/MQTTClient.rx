@@ -13,27 +13,20 @@
     <description>
       MQTT Client utilizing the power of Reactive Extensions</description>
     <releaseNotes>
-      Now only support .NET Standard 2.0+ (for earliers support use versions previous to version 3.0.0.
-      Updated to MQTTnet 2.8.1
-      Updated to System.Reactive 4.0.0
-      Moved to URI instead of Url, Broker, Port parameters, which was becoming a mess
-      Fixed issue with connecting on UWP
+      Now only support .NET Standard 2.0+ 
+      Updated to MQTTnet 2.8.2
+      Updated to System.Reactive 4.1.0
       Stability and performance improvements. 
-      Added support for WebSocket based MQTT connection
+      Breaking changes. See project site.
     </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>mqtt client rx reactivex netstandard20</tags>
     <dependencies>
     
       <group targetFramework="netstandard2.0">
-        <dependency id="MQTTnet" version="2.8.1"/>
-        <dependency id="System.Reactive" version="4.0.0"/>
+        <dependency id="MQTTnet" version="2.8.2"/>
+        <dependency id="System.Reactive" version="4.1.0"/>
       </group>
-
-      <!--<group targetFramework="uap10.0">
-        <dependency id="Microsoft.NETCore.UniversalWindowsPlatform" version="6.1.4" />
-        <dependency id="MQTTnet" version="2.7.5"/>
-      </group>-->
     </dependencies>
   </metadata>
   <files>
@@ -41,7 +34,5 @@
       <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\MQTTClientRx.*" target="lib\netstandard2.0\" />
       <file src="..\main\MQTTClientRx.netstandard20\bin\Release\netstandard2.0\IMQTTClientRx.*" target="lib\netstandard2.0\" />
 
-      <!--<file src="..\main\MQTTClientRx.UWP\bin\Release\MQTTClientRx.*" target="lib\uap10\" />
-      <file src="..\main\MQTTClientRx.UWP\bin\Release\IMQTTClientRx.*" target="lib\uap10\" />-->
     </files>
 </package>
