@@ -2,7 +2,7 @@
 
 [![NuGet Badge](https://buildstats.info/nuget/MQTTClientRx)](https://www.nuget.org/packages/MQTTClientRx)
 
-[![System.Reactive](http://img.shields.io/badge/Rx-v4.0.0-ff69b4.svg)](http://reactivex.io/) 
+[![System.Reactive](http://img.shields.io/badge/Rx-v4.1.0-ff69b4.svg)](http://reactivex.io/) 
 
 *Please star this project if you find it useful. Thank you!*
 
