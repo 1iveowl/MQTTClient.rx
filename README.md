@@ -2,7 +2,7 @@
 
 [![NuGet Badge](https://buildstats.info/nuget/MQTTClientRx)](https://www.nuget.org/packages/MQTTClientRx)
 
-[![System.Reactive](http://img.shields.io/badge/Rx-v3.1.1-ff69b4.svg)](http://reactivex.io/) 
+[![System.Reactive](http://img.shields.io/badge/Rx-v4.0.0-ff69b4.svg)](http://reactivex.io/) 
 
 *Please star this project if you find it useful. Thank you!*
 
@@ -39,12 +39,10 @@ internal class MQTTMessage : IMQTTMessage
     public bool Retain { get; internal set; }
 }
 ```
-
 ```csharp
 internal class Options : TlsOptions, IClientOptions
 {
     public Uri Uri { get; internal set; }
-
     public string UserName { get; internal set; }
     public string Password { get; internal set; }
     public string ClientId { get; internal set; }
@@ -168,7 +166,7 @@ The library supports TLS and the option to Ignore certain types of errors and al
 ```csharp
 var mqttClientOptions = new Options
 {
-	Uri = new Uri("mqtt://test.mosquitto.org:1883"), //Test server
+	Uri = new Uri("mqtts://test.mosquitto.org:8883"), //Test server
 	UseTls = true,
 	IgnoreCertificateChainErrors = true,
 	IgnoreCertificateRevocationErrors = true,
