@@ -21,19 +21,19 @@ namespace MQTTClientRx.Model
 
         private readonly ITopicFilter [] _topicFilters;
 
-        public IObservable<Unit> ObservableConnect => Observable.FromEventPattern<MqttClientConnectedEventArgs>(
+        internal IObservable<Unit> ObservableConnect => Observable.FromEventPattern<MqttClientConnectedEventArgs>(
                 h => _mqttClient.Connected += h,
                 h => _mqttClient.Connected -= h)
             .Where(x => _topicFilters?.Any() ?? false)
             .Select(x => Observable.FromAsync(() => SubscribeAsync(_topicFilters)))
             .Concat();
 
-        public IObservable<bool> ObservableDisconnect => Observable.FromEventPattern<MqttClientDisconnectedEventArgs>(
+        internal IObservable<bool> ObservableDisconnect => Observable.FromEventPattern<MqttClientDisconnectedEventArgs>(
                 h => _mqttClient.Disconnected += h,
                 h => _mqttClient.Disconnected -= h)
             .Select(x => x.EventArgs.ClientWasConnected == false);
 
-        public IObservable<IMQTTMessage> ObservableMessage => Observable
+        internal IObservable<IMQTTMessage> ObservableMessage => Observable
             .FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
                 h => _mqttClient.ApplicationMessageReceived += h,
                 h => _mqttClient.ApplicationMessageReceived -= h)
@@ -74,14 +74,12 @@ namespace MQTTClientRx.Model
                     if (!_mqttService.IsConnected)
                     {
                         var t = "";
-                        //obs.OnError(new Exception("Unable to connect"));
                     }
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsConnected = false;
-                    //obs.OnError(ex);
                 }
             }
         }

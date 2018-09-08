@@ -3,7 +3,7 @@
   <metadata>
     <id>MQTTClientRx</id>
     <version>0</version>
-    <title>MQTT Client Rx for .NET Standard 2.0+</title>
+    <title>MQTT Client Rx for .NET Standard 2.0</title>
     <authors>Jasper H. Bojsen</authors>
     <owners>Jasper H. Bojsen</owners>
     <licenseUrl>https://github.com/1iveowl/MQTTClient.rx/blob/master/LICENSE.md</licenseUrl>

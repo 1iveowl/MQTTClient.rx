@@ -13,8 +13,6 @@ namespace Test.Client.Core
         {
             await Start();
 
-            Console.ReadLine();
-            await Task.Delay(TimeSpan.FromSeconds(1));
             Console.WriteLine("Press any key to exit...");
             Console.ReadLine();
         }

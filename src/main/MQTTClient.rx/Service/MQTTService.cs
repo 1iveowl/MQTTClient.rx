@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
 using MQTTClientRx.Extension;
 using MQTTClientRx.Model;
-using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Protocol;
 
 // ReSharper disable PossibleMultipleEnumeration
 
