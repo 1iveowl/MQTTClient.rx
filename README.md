@@ -146,8 +146,8 @@ _disposable = MQTTService.observableMessage.Subscribe(
         Console.WriteLine("Completed...");
     });;
 
-	// IMPORTANT. The is new in version 3.2 and later. You have to connect to the MQTT Server.
-	await MQTTService.client.ConnectAsync();
+// IMPORTANT. The is new in version 3.2 and later. You have to connect to the MQTT Server.
+await MQTTService.client.ConnectAsync();
 
 ```
 #### Connecting to Websocket
