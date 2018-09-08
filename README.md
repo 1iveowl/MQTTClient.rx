@@ -2,7 +2,7 @@
 
 [![NuGet Badge](https://buildstats.info/nuget/MQTTClientRx)](https://www.nuget.org/packages/MQTTClientRx)
 
-[![System.Reactive](http://img.shields.io/badge/Rx-v4.0.0-ff69b4.svg)](http://reactivex.io/) 
+[![System.Reactive](http://img.shields.io/badge/Rx-v4.1.0-ff69b4.svg)](http://reactivex.io/) 
 
 *Please star this project if you find it useful. Thank you!*
 
@@ -146,8 +146,8 @@ _disposable = MQTTService.observableMessage.Subscribe(
         Console.WriteLine("Completed...");
     });;
 
-	// IMPORTANT. The is new in version 3.2 and later. You have to connect to the MQTT Server.
-	await MQTTService.client.ConnectAsync();
+// IMPORTANT. The is new in version 3.2 and later. You have to connect to the MQTT Server.
+await MQTTService.client.ConnectAsync();
 
 ```
 #### Connecting to Websocket
