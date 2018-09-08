@@ -4,22 +4,16 @@ using System.Threading.Tasks;
 using IMQTTClientRx.Model;
 using MQTTClientRx.Service;
 using Test.Client.Core.Model;
-using MQTTClientRx.Extension;
-using MQTTClientRx.Model;
 
 namespace Test.Client.Core
 {
     class Program
     {
-        private static IDisposable _disp1;
-        private static IDisposable _disp2;
         static async Task Main(string[] args)
         {
             await Start();
 
             Console.ReadLine();
-            //await _disp1.DisposeAsync();
-            //await _disp2.DisposeAsync();
             await Task.Delay(TimeSpan.FromSeconds(1));
             Console.WriteLine("Press any key to exit...");
             Console.ReadLine();
@@ -57,19 +51,28 @@ namespace Test.Client.Core
             var topic2 = new TopicFilter
             {
                 QualityOfServiceLevel = QoSLevel.AtLeastOnce,
-                //Topic = "EFM/#"
-                Topic = "MQTTClientRx/Test"
+                Topic = "EFM/#"
+                //Topic = "MQTTClientRx/Test"
             };
 
-            ITopicFilter[] topicFilters = {
+            var topic3 = new TopicFilter
+            {
+                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
+                Topic = "MQTTClientRx"
+            };
+
+
+            ITopicFilter[] topicFilters = 
+            {
 
                 topic1,
-                //topic2
+                topic2,
+                topic3,
             };
 
-            var MQTTService = mqttService.CreateObservableMQTTService(mqttClientOptions, topicFilters);
+            var MQTTService = mqttService.CreateObservableMQTTClient(mqttClientOptions, willMessage:null, topicFilters:topicFilters);
 
-            _disp1 = MQTTService.observableMessage.Subscribe(
+            var disposableMessage = MQTTService.observableMessage.Subscribe(
                 msg =>
                 {
                     if (msg.Topic.Contains("EFM"))
@@ -88,84 +91,55 @@ namespace Test.Client.Core
                 },
                 ex =>
                 {
-                    Console.WriteLine($"{ex.Message} : inner {ex.InnerException.Message}");
+                    Console.WriteLine($"{ex?.Message} : inner {ex?.InnerException?.Message}");
                 },
                 () =>
                 {
                     Console.WriteLine("Completed...");
                 });
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            await MQTTService.client.ConnectAsync();
+
+
+            //await Task.Delay(TimeSpan.FromSeconds(2));
+
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            //await MQTTService.client.UnsubscribeAsync(topic2);
+
+            //Console.ForegroundColor = ConsoleColor.Blue;
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            await MQTTService.client.UnsubscribeAsync(topic1);
+            Console.ForegroundColor = ConsoleColor.Blue;
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            await MQTTService.client.SubscribeAsync(topic3);
+            Console.ForegroundColor = ConsoleColor.Blue;
 
             var newMessage = new MQTTMessage
             {
                 Payload = Encoding.UTF8.GetBytes("Hello MQTT EO"),
-                QualityOfServiceLevel = QoSLevel.ExactlyOnce,
+                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
                 Retain = false,
-                Topic = "MQTTClientRx/Test"
+                Topic = "MQTTClientRx"
             };
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
 
             await MQTTService.client.PublishAsync(newMessage);
 
-            _disp2 = MQTTService.observableMessage.Subscribe(
-                msg =>
-                {
-                    if (msg.Topic.Contains("EFM"))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                    }
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                    }
-
-                    Console.WriteLine($"{Encoding.UTF8.GetString(msg.Payload)}, " +
-                                      $"{msg.QualityOfServiceLevel.ToString()}, " +
-                                      $"Retain: {msg.Retain}, " +
-                                      $"Topic: {msg.Topic}");
-                },
-                ex =>
-                {
-                    Console.WriteLine($"{ex.Message} : inner {ex.InnerException.Message}");
-                },
-                () =>
-                {
-                    Console.WriteLine("Completed...");
-                });
-
             await Task.Delay(TimeSpan.FromSeconds(2));
 
-            await MQTTService.client.UnsubscribeAsync(new[] {topic2});
+            await MQTTService.client.DisconnectAsync();
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            //await MQTTService.client.UnsubscribeAsync(new [] {topic1});
-
-            //await Task.Delay(TimeSpan.FromSeconds(2));
-
-
-
-            //await MQTTService.client.SubscribeAsync(new[] { topic2 });
-
-
-            await Task.Delay(TimeSpan.FromSeconds(2));
-            
-            _disp2.Dispose();
-
-            await Task.Delay(TimeSpan.FromSeconds(2));
-
-            _disp1.Dispose();
-
-            await Task.Delay(TimeSpan.FromSeconds(30));
-            //var topic2a = new TopicFilter
-            //{
-            //    QualityOfServiceLevel = QoSLevel.ExactlyOnce,
-            //    Topic = "EFM/#"
-            //};
-            //Console.ForegroundColor = ConsoleColor.DarkBlue;
-            //await MQTTService.client.UnsubscribeAsync(new[] { topic2 });
-            //await MQTTService.client.SubscribeAsync(new[] { topic2a });
-
+            disposableMessage?.Dispose();
         }
     }
 }

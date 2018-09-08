@@ -9,10 +9,10 @@ namespace IMQTTClientRx.Service
     {
         bool IsConnected { get; }
 
-        (IObservable<IMQTTMessage> observableMessage, Model.IMQTTClient client) CreateObservableMQTTService(
-            IClientOptions options, 
-            IEnumerable<ITopicFilter> topicFilters = null,
-            IWillMessage willMessage = null);
+        (IObservable<IMQTTMessage> observableMessage, Model.IMQTTClient client) CreateObservableMQTTClient(
+            IClientOptions options,
+            IWillMessage willMessage = null,
+            params ITopicFilter [] topicFilters);
 
     }
 }

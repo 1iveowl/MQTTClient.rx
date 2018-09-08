@@ -13,6 +13,9 @@ This project is based on [MQTTnet](https://github.com/chkr1011/MQTTnet) by Chris
 [MQTT](http://mqtt.org/) and [Reactive Extensions](http://reactivex.io/) (aka. ReactiveX or just Rx) are a perfect for each other! Rx is an API for asynchronous programming
 with observable streams, while MQTT is a protocol that produces asynchronous streams.
 
+## Version 3.2 and later
+This version introduced some breaking changes. See examples below for how to use this version.
+
 ## How to use
 Using the library is easy. Rx makes is easy to write code in a declarative manager which in IMHO is more elegant that the alternatives. 
 
@@ -38,31 +41,29 @@ internal class MQTTMessage : IMQTTMessage
 ```
 
 ```csharp
-internal class Options : IClientOptions
+internal class Options : TlsOptions, IClientOptions
 {
-    public string Server { get; internal set; }
-    public int? Port { get; internal set; }
+    public Uri Uri { get; internal set; }
+
     public string UserName { get; internal set; }
     public string Password { get; internal set; }
     public string ClientId { get; internal set; }
     public bool CleanSession { get; internal set; }
     public TimeSpan KeepAlivePeriod { get; internal set; }
     public TimeSpan DefaultCommunicationTimeout { get; internal set; }
-    public ProtocolVersion ProcolVersion {get; internal set;}
-	public ConnectionType ConnectionType { get; internal set; }
-
-	// TlsOptions
-    public bool UseTls { get; internal set; }
-    public bool CheckCertificateRevocation { get; internal set; }
-    public IEnumerable<byte[]> Certificates { get; internal set; }
+    public ProtocolVersion ProtocolVersion { get; internal set; }
+    public ConnectionType ConnectionType { get; internal set; }
 }
 ```
 
 ```csharp
-internal class TopicFilter : ITopicFilter
+internal  class TlsOptions : ITlsOptions
 {
-    public string Topic { get; internal set; }
-    public QoSLevel QualityOfServiceLevel { get; internal set; }
+    public bool UseTls { get; internal set; }
+    public IEnumerable<byte[]> Certificates { get; internal set; }
+    public bool IgnoreCertificateChainErrors { get; internal set; }
+    public bool IgnoreCertificateRevocationErrors { get; internal set; }
+    public bool AllowUntrustedCertificates { get; internal set; }
 }
 ```
 
@@ -75,7 +76,7 @@ internal class WillMessage : IWillMessage
     public bool Retain { get; internal set; }
 }
 ```
-Implemting these classes is easily done, and by not using concrete classes in the library you have the flexibility to how to use and implement these classes. Also you can encapsulate as you see fit. It might seem a bit counter intiitive at first, but there is added benefit to the flexibility this provides as your project grow.
+Implemting these classes is easily done, and by not using concrete classes in the library you have the flexibility to how to use and implement these classes in your own project as you see fit.
 
 ### Observing MQTT
 Now you are ready to start using this library.
@@ -108,13 +109,14 @@ var topic2 = new TopicFilter
     Topic = "EFM/#" // You might want to try something else if there is nothing is published to this topic in the test server at the time of testing this.
 };
 
-ITopicFilter[] topicFilters = {
+ITopicFilter[] topicFilters = 
+{
 
     topic1,
     topic2
 };
 
-var MQTTService = mqttService.CreateObservableMQTTServiceAsync(mqttClientOptions, topicFilters); //The topic filters are optional
+var MQTTService = mqttService.CreateObservableMQTTClient(mqttClientOptions, willMessage:null, topicFilters:topicFilters); //The topic filters are optional you can subscribe to the topics you want to monitor later.
 
 _disposable = MQTTService.observableMessage.Subscribe(
     msg =>
@@ -145,8 +147,12 @@ _disposable = MQTTService.observableMessage.Subscribe(
         // Example: The observable will complete if the connection is ended by the serter
         Console.WriteLine("Completed...");
     });;
+
+	// IMPORTANT. The is new in version 3.2 and later. You have to connect to the MQTT Server.
+	await MQTTService.client.ConnectAsync();
+
 ```
-#### Connecting to Webesocket
+#### Connecting to Websocket
 
 ```csharp
 var mqttClientOptions = new Options
@@ -175,13 +181,13 @@ var mqttClientOptions = new Options
 
 Subscribing to other Topic Filters is easy:
 ```csharp
-MQTTService.client.SubscribeAsync(new[] { "My/NewFilter" });
+MQTTService.client.SubscribeAsync("My/NewFilter");
 ```
 You can subscribe to Topic filters after creating the MQTTService.
 #### Unsubscribing to Topic Filteres
 Unsubscribing to other Topic Filters is easy:
 ```csharp
-MQTTService.client.UnsubscribeAsync(new[] { "My/NewFilter" });
+MQTTService.client.UnsubscribeAsync("My/NewFilter");
 ```
 You can unsubscribe to Topic filters after creating the MQTTService.
 #### Publish
