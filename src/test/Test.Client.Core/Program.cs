@@ -107,37 +107,37 @@ namespace Test.Client.Core
 
             //Console.ForegroundColor = ConsoleColor.Blue;
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Unsubscribe: {topic1.Topic}");
-            await MQTTService.client.UnsubscribeAsync(topic1);
-            Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            //await MQTTService.client.UnsubscribeAsync(topic1);
+            //Console.ForegroundColor = ConsoleColor.Blue;
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Unsubscribe: {topic1.Topic}");
-            await MQTTService.client.SubscribeAsync(topic3);
-            Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            //await MQTTService.client.SubscribeAsync(topic3);
+            //Console.ForegroundColor = ConsoleColor.Blue;
 
-            var newMessage = new MQTTMessage
-            {
-                Payload = Encoding.UTF8.GetBytes("Hello MQTT EO"),
-                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
-                Retain = false,
-                Topic = "MQTTClientRx"
-            };
+            //var newMessage = new MQTTMessage
+            //{
+            //    Payload = Encoding.UTF8.GetBytes("Hello MQTT EO"),
+            //    QualityOfServiceLevel = QoSLevel.AtLeastOnce,
+            //    Retain = false,
+            //    Topic = "MQTTClientRx"
+            //};
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            await MQTTService.client.PublishAsync(newMessage);
+            //await MQTTService.client.PublishAsync(newMessage);
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            await MQTTService.client.DisconnectAsync();
+            //await MQTTService.client.DisconnectAsync();
 
-            disposableMessage?.Dispose();
+            //disposableMessage?.Dispose();
         }
     }
 }

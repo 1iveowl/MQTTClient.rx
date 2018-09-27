@@ -119,6 +119,7 @@ namespace MQTTClientRx.Model
             return topicFilters.Select(tFilter =>
             {
                 var tf = new TopicFilterBuilder().WithTopic(tFilter.Topic);
+
                 switch (tFilter.QualityOfServiceLevel)
                 {
                     case QoSLevel.AtMostOnce:
