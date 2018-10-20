@@ -2,14 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <AssemblyName>MQTTClientRx</AssemblyName>
     <RootNamespace>MQTTClientRx</RootNamespace>
     <Configurations>Debug;Release;Native</Configurations>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyVersion>3.2.2.0</AssemblyVersion>
+    <FileVersion>3.2.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\MQTTClient.rx\Extension\ExtensionMethods.cs" Link="Extension\ExtensionMethods.cs" />
-    <Compile Include="..\MQTTClient.rx\Model\DisposableAsync.cs" Link="Model\DisposableAsync.cs" />
     <Compile Include="..\MQTTClient.rx\Model\MQTTClient.cs" Link="Model\MQTTClient.cs" />
     <Compile Include="..\MQTTClient.rx\Model\MQTTMessage.cs" Link="Model\MQTTMessage.cs" />
     <Compile Include="..\MQTTClient.rx\Service\MQTTService.cs" Link="Service\MQTTService.cs" />
@@ -26,8 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MQTTnet" Version="2.8.2" />
-    <PackageReference Include="System.Reactive" Version="4.1.0" />
+    <PackageReference Include="MQTTnet" Version="2.8.4" />
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
   </ItemGroup>
 
 </Project>

@@ -13,8 +13,6 @@ namespace Test.Client.Core
         {
             await Start();
 
-            Console.ReadLine();
-            await Task.Delay(TimeSpan.FromSeconds(1));
             Console.WriteLine("Press any key to exit...");
             Console.ReadLine();
         }
@@ -25,11 +23,11 @@ namespace Test.Client.Core
 
             var mqttClientOptions = new Options
             {
-                Uri = new Uri("mqtt://test.mosquitto.org:1883"),
-                //UseTls = true,
+                Uri = new Uri("mqtt://test.mosquitto.org:8883"),
+                UseTls = true,
                 //IgnoreCertificateChainErrors = true,
                 //IgnoreCertificateRevocationErrors = true,
-                //AllowUntrustedCertificates = true,
+                AllowUntrustedCertificates = true,
 
                 //Uri = new Uri("ws://broker.mqttdashboard.com:8000/mqtt"),
                 //Server = "broker.mqttdashboard.com",
@@ -109,37 +107,37 @@ namespace Test.Client.Core
 
             //Console.ForegroundColor = ConsoleColor.Blue;
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Unsubscribe: {topic1.Topic}");
-            await MQTTService.client.UnsubscribeAsync(topic1);
-            Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            //await MQTTService.client.UnsubscribeAsync(topic1);
+            //Console.ForegroundColor = ConsoleColor.Blue;
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Unsubscribe: {topic1.Topic}");
-            await MQTTService.client.SubscribeAsync(topic3);
-            Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.WriteLine($"Unsubscribe: {topic1.Topic}");
+            //await MQTTService.client.SubscribeAsync(topic3);
+            //Console.ForegroundColor = ConsoleColor.Blue;
 
-            var newMessage = new MQTTMessage
-            {
-                Payload = Encoding.UTF8.GetBytes("Hello MQTT EO"),
-                QualityOfServiceLevel = QoSLevel.AtLeastOnce,
-                Retain = false,
-                Topic = "MQTTClientRx"
-            };
+            //var newMessage = new MQTTMessage
+            //{
+            //    Payload = Encoding.UTF8.GetBytes("Hello MQTT EO"),
+            //    QualityOfServiceLevel = QoSLevel.AtLeastOnce,
+            //    Retain = false,
+            //    Topic = "MQTTClientRx"
+            //};
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            await MQTTService.client.PublishAsync(newMessage);
+            //await MQTTService.client.PublishAsync(newMessage);
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            //await Task.Delay(TimeSpan.FromSeconds(2));
 
-            await MQTTService.client.DisconnectAsync();
+            //await MQTTService.client.DisconnectAsync();
 
-            disposableMessage?.Dispose();
+            //disposableMessage?.Dispose();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using IMQTTClientRx.CustomException;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
 using MQTTClientRx.Service;
@@ -21,19 +22,19 @@ namespace MQTTClientRx.Model
 
         private readonly ITopicFilter [] _topicFilters;
 
-        public IObservable<Unit> ObservableConnect => Observable.FromEventPattern<MqttClientConnectedEventArgs>(
+        internal IObservable<Unit> ObservableConnect => Observable.FromEventPattern<MqttClientConnectedEventArgs>(
                 h => _mqttClient.Connected += h,
                 h => _mqttClient.Connected -= h)
             .Where(x => _topicFilters?.Any() ?? false)
             .Select(x => Observable.FromAsync(() => SubscribeAsync(_topicFilters)))
             .Concat();
 
-        public IObservable<bool> ObservableDisconnect => Observable.FromEventPattern<MqttClientDisconnectedEventArgs>(
+        internal IObservable<bool> ObservableDisconnect => Observable.FromEventPattern<MqttClientDisconnectedEventArgs>(
                 h => _mqttClient.Disconnected += h,
                 h => _mqttClient.Disconnected -= h)
             .Select(x => x.EventArgs.ClientWasConnected == false);
 
-        public IObservable<IMQTTMessage> ObservableMessage => Observable
+        internal IObservable<IMQTTMessage> ObservableMessage => Observable
             .FromEventPattern<MqttApplicationMessageReceivedEventArgs>(
                 h => _mqttClient.ApplicationMessageReceived += h,
                 h => _mqttClient.ApplicationMessageReceived -= h)
@@ -66,22 +67,29 @@ namespace MQTTClientRx.Model
                 try
                 {
                     var opt = UnwrapOptions(_mqttService.ClientOptions, _mqttService.WillMessage);
-                 
-                    var connectResult = await _mqttClient.ConnectAsync(opt);
 
-                    IsConnected = connectResult.IsSessionPresent;
+                    try
+                    {
+                        await _mqttClient.ConnectAsync(opt);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new MqttClientRxException($"Unable to connect to: {_mqttService.ClientOptions.Uri.AbsoluteUri}", ex);
+                    }
+
+                    ;
+
+                    IsConnected = _mqttClient.IsConnected; ;
 
                     if (!_mqttService.IsConnected)
                     {
-                        var t = "";
-                        //obs.OnError(new Exception("Unable to connect"));
+                        throw new MqttClientRxException($"Unable to connect to: {_mqttService.ClientOptions.Uri.AbsoluteUri}");
                     }
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     IsConnected = false;
-                    //obs.OnError(ex);
                 }
             }
         }
@@ -121,6 +129,7 @@ namespace MQTTClientRx.Model
             return topicFilters.Select(tFilter =>
             {
                 var tf = new TopicFilterBuilder().WithTopic(tFilter.Topic);
+
                 switch (tFilter.QualityOfServiceLevel)
                 {
                     case QoSLevel.AtMostOnce:
@@ -184,19 +193,20 @@ namespace MQTTClientRx.Model
                         AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates,
                         Certificates = UnwrapCertificates(wrappedOptions.Certificates),
                         IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                        UseTls = wrappedOptions.UseTls
                     });
             }
 
             return optionsBuilder
                 .WithWillMessage(WrapWillMessage(willMessage))
                 .WithCleanSession(wrappedOptions.CleanSession)
-                .WithClientId(wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", String.Empty))
+                .WithClientId(wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty))
 
                 .WithProtocolVersion(UnwrapProtocolVersion(wrappedOptions.ProtocolVersion))
-                .WithCommunicationTimeout(wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                .WithCommunicationTimeout(wrappedOptions.DefaultCommunicationTimeout == default
                     ? TimeSpan.FromSeconds(10)
                     : wrappedOptions.DefaultCommunicationTimeout)
-                .WithKeepAlivePeriod(wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                .WithKeepAlivePeriod(wrappedOptions.KeepAlivePeriod == default
                     ? TimeSpan.FromSeconds(5)
                     : wrappedOptions.KeepAlivePeriod)
                 .WithCredentials(wrappedOptions.UserName, wrappedOptions.Password)

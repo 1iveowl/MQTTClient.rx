@@ -9,10 +9,6 @@ namespace IMQTTClientRx.Model
     {
         bool IsConnected { get; }
 
-        IObservable<Unit> ObservableConnect { get; }
-        IObservable<bool> ObservableDisconnect { get; }
-        IObservable<IMQTTMessage> ObservableMessage { get; }
-
         Task ConnectAsync();
         Task DisconnectAsync();
         Task SubscribeAsync(params ITopicFilter [] topicFilters);

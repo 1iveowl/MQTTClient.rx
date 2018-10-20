@@ -3,7 +3,7 @@
   <metadata>
     <id>MQTTClientRx</id>
     <version>0</version>
-    <title>MQTT Client Rx for .NET Standard 2.0+</title>
+    <title>MQTT Client Rx for .NET Standard 2.0</title>
     <authors>Jasper H. Bojsen</authors>
     <owners>Jasper H. Bojsen</owners>
     <licenseUrl>https://github.com/1iveowl/MQTTClient.rx/blob/master/LICENSE.md</licenseUrl>
@@ -24,8 +24,8 @@
     <dependencies>
     
       <group targetFramework="netstandard2.0">
-        <dependency id="MQTTnet" version="2.8.2"/>
-        <dependency id="System.Reactive" version="4.1.0"/>
+        <dependency id="MQTTnet" version="2.8.4"/>
+        <dependency id="System.Reactive" version="4.1.2"/>
       </group>
     </dependencies>
   </metadata>
