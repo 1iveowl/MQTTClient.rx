@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using IMQTTClientRx.CustomException;
 using IMQTTClientRx.Model;
 using IMQTTClientRx.Service;
 using MQTTClientRx.Service;
@@ -66,14 +67,23 @@ namespace MQTTClientRx.Model
                 try
                 {
                     var opt = UnwrapOptions(_mqttService.ClientOptions, _mqttService.WillMessage);
-                 
-                    var connectResult = await _mqttClient.ConnectAsync(opt);
 
-                    IsConnected = connectResult.IsSessionPresent;
+                    try
+                    {
+                        await _mqttClient.ConnectAsync(opt);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new MqttClientRxException($"Unable to connect to: {_mqttService.ClientOptions.Uri.AbsoluteUri}", ex);
+                    }
+
+                    ;
+
+                    IsConnected = _mqttClient.IsConnected; ;
 
                     if (!_mqttService.IsConnected)
                     {
-                        var t = "";
+                        throw new MqttClientRxException($"Unable to connect to: {_mqttService.ClientOptions.Uri.AbsoluteUri}");
                     }
 
                 }
@@ -183,19 +193,20 @@ namespace MQTTClientRx.Model
                         AllowUntrustedCertificates = wrappedOptions.AllowUntrustedCertificates,
                         Certificates = UnwrapCertificates(wrappedOptions.Certificates),
                         IgnoreCertificateChainErrors = wrappedOptions.IgnoreCertificateChainErrors,
+                        UseTls = wrappedOptions.UseTls
                     });
             }
 
             return optionsBuilder
                 .WithWillMessage(WrapWillMessage(willMessage))
                 .WithCleanSession(wrappedOptions.CleanSession)
-                .WithClientId(wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", String.Empty))
+                .WithClientId(wrappedOptions.ClientId ?? Guid.NewGuid().ToString().Replace("-", string.Empty))
 
                 .WithProtocolVersion(UnwrapProtocolVersion(wrappedOptions.ProtocolVersion))
-                .WithCommunicationTimeout(wrappedOptions.DefaultCommunicationTimeout == default(TimeSpan)
+                .WithCommunicationTimeout(wrappedOptions.DefaultCommunicationTimeout == default
                     ? TimeSpan.FromSeconds(10)
                     : wrappedOptions.DefaultCommunicationTimeout)
-                .WithKeepAlivePeriod(wrappedOptions.KeepAlivePeriod == default(TimeSpan)
+                .WithKeepAlivePeriod(wrappedOptions.KeepAlivePeriod == default
                     ? TimeSpan.FromSeconds(5)
                     : wrappedOptions.KeepAlivePeriod)
                 .WithCredentials(wrappedOptions.UserName, wrappedOptions.Password)
