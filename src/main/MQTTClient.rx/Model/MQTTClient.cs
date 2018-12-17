@@ -97,6 +97,7 @@ namespace MQTTClientRx.Model
         public async Task DisconnectAsync()
         {
             await _mqttClient.DisconnectAsync();
+            IsConnected = false;
         }
 
         public async Task SubscribeAsync(params ITopicFilter [] topicFilters)
@@ -288,6 +289,7 @@ namespace MQTTClientRx.Model
 
         public void Dispose()
         {
+            IsConnected = false;
             _mqttClient?.Dispose();
         }
     }

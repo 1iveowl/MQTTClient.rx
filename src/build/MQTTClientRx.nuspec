@@ -14,8 +14,8 @@
       MQTT Client utilizing the power of Reactive Extensions</description>
     <releaseNotes>
       Now only support .NET Standard 2.0+ 
-      Updated to MQTTnet 2.8.2
-      Updated to System.Reactive 4.1.0
+      Updated to MQTTnet 2.8.5
+      Updated to System.Reactive 4.1.2
       Stability and performance improvements. 
       Breaking changes. See project site.
     </releaseNotes>
@@ -24,7 +24,7 @@
     <dependencies>
     
       <group targetFramework="netstandard2.0">
-        <dependency id="MQTTnet" version="2.8.4"/>
+        <dependency id="MQTTnet" version="2.8.5"/>
         <dependency id="System.Reactive" version="4.1.2"/>
       </group>
     </dependencies>

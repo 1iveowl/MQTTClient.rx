@@ -49,7 +49,7 @@ namespace MQTTClientRx.Service
                                 obs.OnCompleted);
 
                         var disposableDisconnect = _wrappedClient.ObservableDisconnect
-                            .Where(disconnect => disconnect == true)
+                            .Where(isDisconnect => isDisconnect)
                             .Select(x => Observable.FromAsync(() => _wrappedClient.DisconnectAsync()).Timeout(TimeSpan.FromSeconds(5)))
                             .Concat()
                             .Subscribe(d =>
