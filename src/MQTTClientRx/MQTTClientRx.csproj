@@ -4,7 +4,7 @@
     <PackageId>MQTTClientRx</PackageId>
     <AssemblyName>MQTTClientRx</AssemblyName>
     <RootNamespace>MQTTClientRx</RootNamespace>
-    <Version>4.0.0</Version>
+    <Version>4.0.1</Version>
     <Description>An Rx-based MQTT 5.0 / 3.1.1 client for .NET, built on MQTTnet. Subscribing connects, disposing disconnects — with declarative reconnect, resubscribe-on-reconnect and the full MQTT 5 surface.</Description>
     <PackageTags>mqtt;mqtt5;client;rx;reactive;observable;iot;mqttnet;reactivex</PackageTags>
     <PackageIcon>1iveowl-logo.png</PackageIcon>
