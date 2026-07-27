@@ -19,12 +19,12 @@ your subscriptions.
 
 A **Blazor + Rx + ReactiveUI dashboard** built on this library.
 
-[![The Live page: a filterable message table beside a detail panel showing MQTT 5 properties](https://raw.githubusercontent.com/1iveowl/MQTTClient.rx/master/assets/dashboard.png)](samples/Sample.Dashboard)
+[![The Live page: a filterable message table beside a detail panel showing MQTT 5 properties](https://raw.githubusercontent.com/1iveowl/MQTTClient.rx/main/assets/dashboard.png)](samples/Sample.Dashboard)
 
 **Live** - the message firehose. Filter it, pause it, and select any message to see its MQTT 5.0
 content type, payload format and user properties broken out beside it.
 
-[![The Connection page: connection-state timeline, broker picker, reconnect-policy sliders and CONNACK capabilities](https://raw.githubusercontent.com/1iveowl/MQTTClient.rx/master/assets/dashboard2.png)](samples/Sample.Dashboard)
+[![The Connection page: connection-state timeline, broker picker, reconnect-policy sliders and CONNACK capabilities](https://raw.githubusercontent.com/1iveowl/MQTTClient.rx/main/assets/dashboard2.png)](samples/Sample.Dashboard)
 
 **Connection** - the reconnect layer made visible. A state timeline straight off
 `IObservable<ConnectionStateChange>`, backoff-policy sliders you can apply live, broker capabilities
