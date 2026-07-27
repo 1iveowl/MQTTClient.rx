@@ -2,7 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/MQTTClientRx?logo=nuget&label=MQTTClientRx)](https://www.nuget.org/packages/MQTTClientRx)
 [![Downloads](https://img.shields.io/nuget/dt/MQTTClientRx?logo=nuget&color=blue)](https://www.nuget.org/packages/MQTTClientRx)
-[![CI](https://github.com/1iveowl/MQTTClient.rx/actions/workflows/ci.yml/badge.svg)](https://github.com/1iveowl/MQTTClient.rx/actions/workflows/ci.yml)
+[![CI](https://github.com/1iveowl/MQTTClient.rx/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/1iveowl/MQTTClient.rx/actions/workflows/ci.yml?query=branch%3Amain)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
