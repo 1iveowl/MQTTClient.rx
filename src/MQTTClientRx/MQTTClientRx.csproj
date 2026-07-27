@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>MQTTClientRx</PackageId>
+    <AssemblyName>MQTTClientRx</AssemblyName>
+    <RootNamespace>MQTTClientRx</RootNamespace>
+    <Version>4.0.0</Version>
+    <Description>An Rx-based MQTT 5.0 / 3.1.1 client for .NET, built on MQTTnet. Subscribing connects, disposing disconnects — with declarative reconnect, resubscribe-on-reconnect and the full MQTT 5 surface.</Description>
+    <PackageTags>mqtt;mqtt5;client;rx;reactive;observable;iot;mqttnet;reactivex</PackageTags>
+    <PackageIcon>1iveowl-logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../assets/1iveowl-logo.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="MQTTClientRx.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
+    <PackageReference Include="System.Reactive" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>

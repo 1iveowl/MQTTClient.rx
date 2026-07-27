@@ -1,0 +1,48 @@
+<Project>
+
+  <!--
+    Per-OS build output.
+
+    This repository is normally opened in a dev container whose workspace is the *same* folder as the
+    host checkout, so a build inside the container and a build on the host write to the same bin/ and
+    obj/. The result is a directory holding, say, a Linux apphost next to a macOS-written assembly:
+    "Exec format error" on one side and BadImageFormatException on the other, plus a Blazor
+    wwwroot/_framework assembled from two different builds.
+
+    Keying the output on the host OS lets both run without ever touching each other's artifacts.
+    Remove this and the two builds collide again.
+  -->
+  <PropertyGroup>
+    <HostOsName Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</HostOsName>
+    <HostOsName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</HostOsName>
+    <HostOsName Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</HostOsName>
+    <HostOsName Condition="'$(HostOsName)' == ''">unknown</HostOsName>
+
+    <!-- Absolute, because BaseIntermediateOutputPath is consumed before the project directory is
+         otherwise established, and a relative path resolves differently per importing project. -->
+    <BaseOutputPath>$(MSBuildProjectDirectory)/bin/$(HostOsName)/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)/obj/$(HostOsName)/</BaseIntermediateOutputPath>
+
+    <!-- The SDK excludes only the *current* intermediate directory from source globbing, so without
+         this a Linux build compiles the generated AssemblyInfo.cs sitting in obj/osx (and vice
+         versa) and fails with duplicate assembly attributes. Exclude both trees outright. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Authors>1iveowl</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/1iveowl/MQTTClient.rx</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/1iveowl/MQTTClient.rx</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+</Project>

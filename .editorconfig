@@ -1,0 +1,53 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,md}]
+indent_size = 2
+
+[*.{csproj,props,targets,slnx,config,xml}]
+indent_size = 2
+
+[*.cs]
+# Namespaces
+csharp_style_namespace_declarations = file_scoped:warning
+
+# 'var'
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+
+# Modern C#
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_accessors = true:suggestion
+csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_prefer_pattern_matching = true:suggestion
+csharp_style_prefer_primary_constructors = false:silent
+dotnet_style_prefer_collection_expression = true:suggestion
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+
+# Usings
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
+
+# Readonly
+dotnet_style_readonly_field = true:warning
+
+# Naming: private fields _camelCase
+dotnet_naming_rule.private_fields_underscore.severity = warning
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_prefix
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_prefix.required_prefix = _
+dotnet_naming_style.underscore_prefix.capitalization = camel_case
+
+# CA1724 (type name matches namespace) - MqttClientRx in MQTTClientRx is intentional.
+dotnet_diagnostic.CA1724.severity = none

@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - 'dev/**'
+      - 'release/**'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+      - 'dev/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Resolved before the build, not just before the pack. Because pack runs with --no-build, a
+      # version supplied only at pack time never reaches the compiler: the package would be stamped
+      # 4.1.0 while the assembly inside it still reported the project's 4.0.0.
+      - name: Resolve package version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            echo "Tagged build: ${version} is the single source of truth for this release."
+          else
+            version=""
+            echo "Untagged build; using the version declared in the project."
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+          # A command-line property rather than an exported environment variable: MSBuild ranks
+          # environment variables *below* a <Version> element already present in the project file,
+          # so exporting Version= here would be silently ignored. -p: wins.
+          if [[ -n "${version}" ]]; then
+            echo "props=-p:Version=${version}" >> "$GITHUB_OUTPUT"
+          else
+            echo "props=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore
+        run: dotnet restore MQTTClient.rx.slnx
+
+      - name: Build
+        run: dotnet build MQTTClient.rx.slnx --configuration Release --no-restore ${{ steps.version.outputs.props }}
+
+      # Integration tests start an eclipse-mosquitto container via Testcontainers. The GitHub-hosted
+      # ubuntu runner ships with Docker, so they run on every push and pull request rather than only
+      # on tags; on a machine without Docker they skip themselves.
+      - name: Test
+        run: |
+          dotnet test MQTTClient.rx.slnx --configuration Release --no-build \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory artifacts/test-results ${{ steps.version.outputs.props }}
+
+      # Only MQTTClientRx is packable; the samples and tests set IsPackable=false. Symbol packages
+      # are produced alongside and dotnet nuget push uploads them with the package automatically.
+      - name: Pack
+        run: |
+          dotnet pack src/MQTTClientRx/MQTTClientRx.csproj --configuration Release --no-build \
+            --output artifacts ${{ steps.version.outputs.props }}
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/*.*nupkg
+          if-no-files-found: error
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts/test-results
+          if-no-files-found: ignore
+
+  publish:
+    name: Publish to NuGet.org
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    permissions:
+      # OIDC token exchange for NuGet Trusted Publishing; no long-lived API key is stored.
+      id-token: write
+      # Creating the GitHub release.
+      contents: write
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: artifacts
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Authenticate to NuGet.org
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: 1iveowl
+
+      - name: Push packages
+        run: |
+          dotnet nuget push artifacts/*.nupkg \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --skip-duplicate
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            artifacts/*.nupkg artifacts/*.snupkg \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${GITHUB_REF_NAME}" \
+            --verify-tag \
+            --generate-notes

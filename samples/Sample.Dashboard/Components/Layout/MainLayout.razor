@@ -1,0 +1,30 @@
+@inherits LayoutComponentBase
+
+<FluentDesignTheme StorageName="mqttclientrx-theme" />
+
+<div class="shell">
+    <header class="shell-header">
+        <div class="brand">
+            <span class="brand-mark">MQTT</span>
+            <span class="brand-rest">ClientRx</span>
+        </div>
+
+        <nav class="shell-nav">
+            <NavLink href="" Match="NavLinkMatch.All" class="nav-item">Live</NavLink>
+            <NavLink href="connection" class="nav-item">Connection</NavLink>
+        </nav>
+
+        <div class="brand-note">Rx · MQTT 5.0 · .NET 10</div>
+    </header>
+
+    <main class="shell-body">
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    <strong>Something failed in the browser.</strong>
+    <pre id="blazor-error-details"></pre>
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <IsPackable>false</IsPackable>
+
+    <!-- WebAssembly strips exception message strings by default to save download size, so failures
+         surface as resource keys like "TypeInitialization_Type" instead of saying what broke. This
+         is a sample; legibility is worth more than the kilobytes. -->
+    <UseSystemResourceKeys>false</UseSystemResourceKeys>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DynamicData" Version="9.4.33" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.10" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.3" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.14.3" />
+    <PackageReference Include="ReactiveUI.Blazor" Version="23.2.28" />
+    <PackageReference Include="ReactiveUI.SourceGenerators" Version="3.1.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- ReactiveUI and Splat register services by reflection. Without these the IL trimmer strips
+       them on a Release publish, so the app fails only when published and never in development. -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="ReactiveUI" />
+    <TrimmerRootAssembly Include="ReactiveUI.Blazor" />
+    <TrimmerRootAssembly Include="Splat" />
+  </ItemGroup>
+
+</Project>

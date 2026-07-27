@@ -1,0 +1,224 @@
+@page "/"
+@using System.Globalization
+@* WebAssembly only, no prerender: this page's services (the SignalR client and its view
+   model) exist only in the browser's DI container, so a server-side pass would try to
+   resolve them where they are not registered. *@
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inherits ReactiveInjectableComponentBase<LiveViewModel>
+
+<PageTitle>Live · MQTTClientRx</PageTitle>
+
+<h1 class="page-title">Live messages</h1>
+
+<div class="stat-row">
+    <div class="stat">
+        <div class="stat-value @(ViewModel!.IsConnected ? "ok" : "warn")">@ViewModel.BrokerState</div>
+        <div class="stat-label">Broker</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">@ViewModel.Rate</div>
+        <div class="stat-label">msg / sec</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">@ViewModel.Count</div>
+        <div class="stat-label">buffered</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">@ViewModel.Matching</div>
+        <div class="stat-label">matching filter</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value @(ViewModel.Paused ? "warn" : "")">@(ViewModel.Paused ? ViewModel.Skipped.ToString(CultureInfo.InvariantCulture) : "—")</div>
+        <div class="stat-label">skipped while paused</div>
+    </div>
+    <div class="stat stat-wide">
+        <div class="stat-value small">@ViewModel.BrokerName</div>
+        <div class="stat-label">endpoint · hub @ViewModel.HubState</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <FluentTextField @bind-Value="ViewModel.Filter"
+                     Placeholder="Filter topic or payload…"
+                     class="filter-box" />
+
+    <FluentButton Appearance="Appearance.Stealth" OnClick="@(() => ViewModel.ClearFilter.Execute().Subscribe())">
+        Clear filter
+    </FluentButton>
+
+    <FluentButton Appearance="@(ViewModel.Paused ? Appearance.Accent : Appearance.Neutral)"
+                  OnClick="@(() => ViewModel.TogglePause.Execute().Subscribe())">
+        @(ViewModel.Paused ? "Resume" : "Pause")
+    </FluentButton>
+
+    <FluentButton Appearance="Appearance.Neutral" OnClick="@(() => ViewModel.Clear.Execute().Subscribe())">
+        Clear
+    </FluentButton>
+</div>
+
+@if (ViewModel.Messages.Count == 0)
+{
+    <div class="empty">
+        <p>No messages yet.</p>
+        <p class="muted">
+            The server subscribes on connect. If this stays empty, check the
+            <NavLink href="connection">Connection</NavLink> page — the broker may be unreachable, or the
+            topic filter may not match anything.
+        </p>
+    </div>
+}
+else
+{
+    <div class="split">
+        <div class="message-list">
+            <table class="messages">
+                <thead>
+                    <tr>
+                        <th class="col-time">Time</th>
+                        <th class="col-topic">Topic</th>
+                        <th class="col-qos">QoS</th>
+                        <th class="col-size">Bytes</th>
+                        <th class="col-payload">Payload</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var message in ViewModel.Messages.Take(300))
+                    {
+                        <tr @key="message.Sequence"
+                            class="@(ViewModel.Selected?.Sequence == message.Sequence ? "row selected" : "row")"
+                            @onclick="@(() => ViewModel.Selected = message)">
+                            <td class="col-time mono">@message.ReceivedAt.ToLocalTime().ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture)</td>
+                            <td class="col-topic mono">
+                                @message.Topic
+                                @if (message.Retain)
+                                {
+                                    <span class="chip chip-retain">retain</span>
+                                }
+                                @if (message.HasVersion5Properties)
+                                {
+                                    <span class="chip chip-v5">v5</span>
+                                }
+                            </td>
+                            <td class="col-qos"><span class="chip chip-qos">@QosShort(message.Qos)</span></td>
+                            <td class="col-size mono">@message.PayloadBytes</td>
+                            <td class="col-payload mono @(message.IsText ? "" : "binary")">@message.Payload</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (ViewModel.Messages.Count > 300)
+            {
+                <p class="muted list-note">
+                    Showing the newest 300 of @ViewModel.Messages.Count matching messages.
+                </p>
+            }
+        </div>
+
+        <aside class="detail">
+            @if (ViewModel.Selected is not null)
+            {
+                var selected = ViewModel.Selected;
+
+                <h2>Message detail</h2>
+                <div class="detail-grid">
+                    <div class="k">Topic</div>
+                    <div class="v mono">@selected.Topic</div>
+                    <div class="k">Received</div>
+                    <div class="v mono">@selected.ReceivedAt.ToLocalTime().ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture)</div>
+                    <div class="k">QoS</div>
+                    <div class="v">@selected.Qos</div>
+                    <div class="k">Retain</div>
+                    <div class="v">@selected.Retain</div>
+                    <div class="k">Size</div>
+                    <div class="v mono">@selected.PayloadBytes bytes@(selected.IsText ? "" : " (binary)")</div>
+                </div>
+
+                <h3>Payload</h3>
+                <pre class="payload">@selected.Payload</pre>
+
+                @if (selected.HasVersion5Properties)
+                {
+                    <h3>MQTT 5.0 properties</h3>
+                    <div class="detail-grid">
+                        @if (selected.ContentType is not null)
+                        {
+                            <div class="k">Content type</div>
+                            <div class="v mono">@selected.ContentType</div>
+                        }
+                        @if (selected.PayloadFormat is not null)
+                        {
+                            <div class="k">Payload format</div>
+                            <div class="v mono">@selected.PayloadFormat</div>
+                        }
+                        @if (selected.ResponseTopic is not null)
+                        {
+                            <div class="k">Response topic</div>
+                            <div class="v mono">@selected.ResponseTopic</div>
+                        }
+                        @if (selected.CorrelationData is not null)
+                        {
+                            <div class="k">Correlation</div>
+                            <div class="v mono wrap">@selected.CorrelationData</div>
+                        }
+                        @if (selected.MessageExpirySeconds is not null)
+                        {
+                            <div class="k">Expires in</div>
+                            <div class="v mono">@selected.MessageExpirySeconds s</div>
+                        }
+                        @if (selected.SubscriptionIdentifiers.Count > 0)
+                        {
+                            <div class="k">Subscription ids</div>
+                            <div class="v mono">@string.Join(", ", selected.SubscriptionIdentifiers)</div>
+                        }
+                    </div>
+
+                    @if (selected.UserProperties.Count > 0)
+                    {
+                        <h3>User properties</h3>
+                        <div class="detail-grid">
+                            @foreach (var property in selected.UserProperties)
+                            {
+                                <div class="k mono">@property.Name</div>
+                                <div class="v mono">@property.Value</div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="muted">
+                        No MQTT 5.0 properties on this message. Brokers only send them when the publisher
+                        set them and the session negotiated 5.0.
+                    </p>
+                }
+            }
+            else
+            {
+                <h2>Message detail</h2>
+                <p class="muted">Select a row to see its payload and MQTT 5.0 properties.</p>
+            }
+        </aside>
+    </div>
+}
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender && ViewModel is not null)
+        {
+            // The hub connection is shared and idempotent, so both pages can safely start it.
+            await ViewModel.StartAsync();
+        }
+    }
+
+    private static string QosShort(string qos) => qos switch
+    {
+        "AtMostOnce" => "0",
+        "AtLeastOnce" => "1",
+        "ExactlyOnce" => "2",
+        _ => qos
+    };
+}

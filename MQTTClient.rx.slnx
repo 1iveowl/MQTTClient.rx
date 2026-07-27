@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/Sample.Client/Sample.Client.csproj" />
+    <Project Path="samples/Sample.Dashboard.Client/Sample.Dashboard.Client.csproj" />
+    <Project Path="samples/Sample.Dashboard/Sample.Dashboard.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/MQTTClientRx/MQTTClientRx.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MQTTClientRx.Tests/MQTTClientRx.Tests.csproj" />
+  </Folder>
+</Solution>

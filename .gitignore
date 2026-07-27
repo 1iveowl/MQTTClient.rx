@@ -48,6 +48,10 @@ project.fragment.lock.json
 artifacts/
 **/Properties/launchSettings.json
 
+# ...except the samples'. The dashboard's port is defined nowhere else, so without this a fresh
+# clone runs it on the default port and every "http://127.0.0.1:5999" in the README is a lie.
+!samples/*/Properties/launchSettings.json
+
 *_i.c
 *_p.c
 *_i.h
@@ -286,3 +290,6 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# Modernization planning notes (local only, not committed)
+plan/

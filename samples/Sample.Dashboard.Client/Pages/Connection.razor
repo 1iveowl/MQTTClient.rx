@@ -1,0 +1,315 @@
+@page "/connection"
+@using System.Globalization
+@* WebAssembly only, no prerender: this page's services (the SignalR client and its view
+   model) exist only in the browser's DI container, so a server-side pass would try to
+   resolve them where they are not registered. *@
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inherits ReactiveInjectableComponentBase<ConnectionViewModel>
+
+<PageTitle>Connection · MQTTClientRx</PageTitle>
+
+<h1 class="page-title">Connection</h1>
+
+<div class="split-wide">
+    <div>
+        <section class="card">
+            <h2>State</h2>
+
+            <div class="state-line">
+                <span class="state-badge @StateClass(ViewModel!.Connection?.State)">
+                    @(ViewModel.Connection?.State ?? "Unknown")
+                </span>
+
+                @if (ViewModel.Connection is { State: "Reconnecting" } reconnecting)
+                {
+                    <span class="state-detail">
+                        attempt @reconnecting.Attempt · next try in
+                        @reconnecting.NextRetryDelaySeconds?.ToString("F1", CultureInfo.InvariantCulture)s
+                    </span>
+                }
+                @if (ViewModel.Connection?.Failure is not null)
+                {
+                    <span class="state-detail error">@ViewModel.Connection?.Failure</span>
+                }
+            </div>
+
+            <div class="timeline">
+                @foreach (var entry in ViewModel.History.TakeLast(24))
+                {
+                    <span class="tick @StateClass(entry.State)"
+                          title="@entry.At.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture) @entry.State"></span>
+                }
+            </div>
+            <p class="muted small">
+                Newest on the right. Every tick is a transition straight off
+                <code>IObservable&lt;ConnectionStateChange&gt;</code>.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Break it</h2>
+            <p class="muted">
+                These cut the real TCP socket underneath the client — the dashboard fronts the broker
+                with a loopback proxy precisely so this is a genuine network failure rather than a
+                simulated one. Disposing the subscription would be a <em>clean</em> teardown, which the
+                library deliberately does not treat as something to recover from.
+            </p>
+
+            @if (ViewModel.CanSimulateOutage)
+            {
+                <div class="button-row">
+                    <FluentButton Appearance="Appearance.Accent"
+                                  OnClick="@(() => ViewModel.Drop.Execute().Subscribe())">
+                        Drop connection
+                    </FluentButton>
+                    <FluentButton Appearance="Appearance.Neutral"
+                                  OnClick="@(() => ViewModel.Outage.Execute().Subscribe())">
+                        Start outage
+                    </FluentButton>
+                    <FluentButton Appearance="Appearance.Neutral"
+                                  OnClick="@(() => ViewModel.Restore.Execute().Subscribe())">
+                        End outage
+                    </FluentButton>
+                </div>
+                <p class="muted small">
+                    <strong>Drop</strong> severs the socket and lets the next attempt through — one clean
+                    recovery, with subscriptions re-applied. <strong>Start outage</strong> also refuses
+                    reconnects, so the backoff grows attempt by attempt until you end it.
+                </p>
+            }
+            else
+            {
+                <p class="muted">
+                    Not available for this broker. The proxy only fronts TCP connections; a WebSocket
+                    endpoint cannot be forwarded transparently, because the <code>Host</code> header
+                    would name the proxy.
+                </p>
+            }
+        </section>
+
+        <section class="card">
+            <h2>Reconnect policy</h2>
+            <p class="muted">
+                Applying a policy reconnects — options are immutable, and a backoff curve belongs to the
+                connection using it.
+            </p>
+
+            <div class="slider-row">
+                <label>Initial delay <span class="mono">@ViewModel.InitialDelay.ToString("F1", CultureInfo.InvariantCulture)s</span></label>
+                <FluentSlider Min="0.2" Max="10" Step="0.2" @bind-Value="ViewModel.InitialDelay" />
+            </div>
+            <div class="slider-row">
+                <label>Max delay <span class="mono">@ViewModel.MaxDelay.ToString("F0", CultureInfo.InvariantCulture)s</span></label>
+                <FluentSlider Min="1" Max="60" Step="1" @bind-Value="ViewModel.MaxDelay" />
+            </div>
+            <div class="slider-row">
+                <label>Backoff factor <span class="mono">×@ViewModel.BackoffFactor.ToString("F1", CultureInfo.InvariantCulture)</span></label>
+                <FluentSlider Min="1" Max="4" Step="0.1" @bind-Value="ViewModel.BackoffFactor" />
+            </div>
+            <div class="slider-row">
+                <label>Jitter <span class="mono">±@((ViewModel.JitterFactor * 100).ToString("F0", CultureInfo.InvariantCulture))%</span></label>
+                <FluentSlider Min="0" Max="0.5" Step="0.05" @bind-Value="ViewModel.JitterFactor" />
+            </div>
+
+            <div class="button-row">
+                <FluentButton Appearance="Appearance.Accent"
+                              OnClick="@(() => ViewModel.ApplyPolicy.Execute().Subscribe())">
+                    Apply and reconnect
+                </FluentButton>
+            </div>
+        </section>
+    </div>
+
+    <div>
+        <section class="card">
+            <h2>Broker</h2>
+
+            <div class="preset-list">
+                @foreach (var option in ViewModel.Brokers)
+                {
+                    <button type="button"
+                            class="@(option.Uri == ViewModel.Uri ? "preset selected" : "preset")"
+                            @onclick="@(() => ViewModel.Choose(option))">
+                        <span class="preset-name">@option.Name</span>
+                        <span class="preset-uri mono">@option.Uri</span>
+                        <span class="preset-note">@option.Description</span>
+                    </button>
+                }
+            </div>
+
+            <div class="field">
+                <label for="uri">Broker URI</label>
+                <FluentTextField id="uri" @bind-Value="ViewModel.Uri" class="wide" />
+                <p class="muted small">
+                    <code>mqtt://</code>, <code>mqtts://</code>, <code>ws://</code> or <code>wss://</code>.
+                    Anything reachable from the server works.
+                </p>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="filter">Topic filter</label>
+                    <FluentTextField id="filter" @bind-Value="ViewModel.TopicFilter" />
+                </div>
+                <div class="field">
+                    <label for="qos">QoS</label>
+                    <select id="qos" @bind="ViewModel.Qos" class="plain-select">
+                        <option value="AtMostOnce">0 — At most once</option>
+                        <option value="AtLeastOnce">1 — At least once</option>
+                        <option value="ExactlyOnce">2 — Exactly once</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="version">Protocol</label>
+                    <select id="version" @bind="ViewModel.ProtocolVersion" class="plain-select">
+                        <option value="V500">MQTT 5.0</option>
+                        <option value="V311">MQTT 3.1.1</option>
+                        <option value="V310">MQTT 3.1.0</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <FluentButton Appearance="Appearance.Accent"
+                              OnClick="@(() => ViewModel.Connect.Execute().Subscribe())">
+                    Connect
+                </FluentButton>
+                <FluentButton Appearance="Appearance.Neutral"
+                              OnClick="@(() => ViewModel.Disconnect.Execute().Subscribe())">
+                    Disconnect
+                </FluentButton>
+            </div>
+        </section>
+
+        @if (ViewModel.Capabilities is not null)
+        {
+            <section class="card">
+                <h2>Broker capabilities</h2>
+                @{ var caps = ViewModel.Capabilities!; }
+                <p class="muted small">Straight off the CONNACK. MQTT 5.0 reports far more than 3.1.1.</p>
+                <div class="detail-grid">
+                    <div class="k">Result</div>
+                    <div class="v mono">@caps.ResultCode</div>
+                    <div class="k">Session present</div>
+                    <div class="v">@YesNo(caps.SessionPresent)</div>
+                    <div class="k">Assigned client id</div>
+                    <div class="v mono">@(caps.AssignedClientId ?? "—")</div>
+                    <div class="k">Max QoS</div>
+                    <div class="v mono">@caps.MaximumQos</div>
+                    <div class="k">Receive maximum</div>
+                    <div class="v mono">@(caps.ReceiveMaximum?.ToString(CultureInfo.InvariantCulture) ?? "—")</div>
+                    <div class="k">Max packet size</div>
+                    <div class="v mono">@(caps.MaximumPacketSize?.ToString(CultureInfo.InvariantCulture) ?? "—")</div>
+                    <div class="k">Server keep-alive</div>
+                    <div class="v mono">@(caps.ServerKeepAliveSeconds?.ToString(CultureInfo.InvariantCulture) ?? "—")</div>
+                    <div class="k">Retain</div>
+                    <div class="v">@YesNo(caps.RetainAvailable)</div>
+                    <div class="k">Wildcards</div>
+                    <div class="v">@YesNo(caps.WildcardSubscriptionAvailable)</div>
+                    <div class="k">Shared subscriptions</div>
+                    <div class="v">@YesNo(caps.SharedSubscriptionAvailable)</div>
+                    <div class="k">Subscription ids</div>
+                    <div class="v">@YesNo(caps.SubscriptionIdentifiersAvailable)</div>
+                </div>
+            </section>
+        }
+
+        <section class="card">
+            <h2>Subscriptions</h2>
+            <p class="muted small">
+                Each filter carries the broker's own SUBACK reason code — a broker can grant one and
+                refuse another, so a single "success" would be a lie.
+            </p>
+
+            @if (ViewModel.Subscriptions.Count == 0)
+            {
+                <p class="muted">No active subscriptions.</p>
+            }
+            else
+            {
+                <table class="subs">
+                    <tbody>
+                        @foreach (var subscription in ViewModel.Subscriptions)
+                        {
+                            <tr>
+                                <td class="mono">@subscription.Topic</td>
+                                <td><span class="chip chip-qos">@subscription.Qos</span></td>
+                                <td>
+                                    <span class="chip @(subscription.IsSuccess ? "chip-ok" : "chip-bad")">
+                                        @subscription.ResultCode
+                                    </span>
+                                </td>
+                                <td class="right">
+                                    <FluentButton Appearance="Appearance.Stealth"
+                                                  OnClick="@(() => ViewModel.UnsubscribeAsync(subscription.Topic))">
+                                        Remove
+                                    </FluentButton>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <div class="field-row">
+                <div class="field grow">
+                    <label for="newtopic">Add filter</label>
+                    <FluentTextField id="newtopic" @bind-Value="ViewModel.NewTopic" Placeholder="sensors/+/temperature" />
+                </div>
+                <div class="field">
+                    <label for="newqos">QoS</label>
+                    <select id="newqos" @bind="ViewModel.NewTopicQos" class="plain-select">
+                        <option value="AtMostOnce">0</option>
+                        <option value="AtLeastOnce">1</option>
+                        <option value="ExactlyOnce">2</option>
+                    </select>
+                </div>
+                <FluentButton Appearance="Appearance.Accent"
+                              OnClick="@(() => ViewModel.Subscribe.Execute().Subscribe())">
+                    Subscribe
+                </FluentButton>
+            </div>
+
+            @if (ViewModel.Error is not null)
+            {
+                <p class="error-line">@ViewModel.Error</p>
+            }
+        </section>
+
+        <section class="card">
+            <h2>Activity</h2>
+            <div class="activity">
+                @foreach (var entry in ViewModel.Activity.AsEnumerable().Reverse().Take(30))
+                {
+                    <div class="activity-line @entry.Severity">
+                        <span class="mono time">@entry.At.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture)</span>
+                        <span>@entry.Text</span>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender && ViewModel is not null)
+        {
+            await ViewModel.StartAsync();
+        }
+    }
+
+    private static string StateClass(string? state) => state switch
+    {
+        "Connected" => "ok",
+        "Connecting" => "pending",
+        "Reconnecting" => "warn",
+        "Disconnected" => "off",
+        _ => "off"
+    };
+
+    private static string YesNo(bool value) => value ? "yes" : "no";
+}

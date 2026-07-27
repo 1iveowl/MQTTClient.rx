@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <ResourcePreloader />
+    <link rel="stylesheet" href="@Assets["_content/Microsoft.FluentUI.AspNetCore.Components/css/reboot.css"]" />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["Sample.Dashboard.styles.css"]" />
+    <ImportMap />
+    <HeadOutlet />
+</head>
+
+<body>
+    @* No @rendermode here on purpose. The router and layout render as real HTML on the server and
+       each page opts into WebAssembly on its own, so a client-side boot failure leaves the shell and
+       an error message on screen instead of an empty document. *@
+    <Routes />
+
+    <script>
+        // Surface client-side failures on the page, not only in the F12 console. A WebAssembly boot
+        // failure produces no Blazor error UI at all — the framework has not started yet — so
+        // without this the only symptom is a blank page.
+        (function () {
+            var shown = 0;
+
+            function show(message) {
+                var details = document.getElementById('blazor-error-details');
+                var bar = document.getElementById('blazor-error-ui');
+
+                // Append rather than keep only the first. The .NET runtime reports the JS-side
+                // wrapper first and the managed exception message in a later call, so stopping at
+                // the first one throws away the part that actually says what broke.
+                if (details && bar && shown < 5) {
+                    shown++;
+                    details.textContent += (details.textContent ? '\n\n' : '') + message;
+                    bar.style.display = 'block';
+                }
+            }
+
+            function describe(value) {
+                if (value instanceof Error) {
+                    // Firefox omits the message from .stack; Chrome includes it. Emit both so the
+                    // message survives on either browser.
+                    var head = (value.name || 'Error') + ': ' + (value.message || '');
+                    return value.stack ? head + '\n' + value.stack : head;
+                }
+                if (value && typeof value === 'object') {
+                    try { return JSON.stringify(value); } catch (e) { return String(value); }
+                }
+                return String(value);
+            }
+
+            // Capture every console.error, not just ones matching known text. Blazor reports a
+            // component failure through console.error and shows its own bar directly, so a filtered
+            // hook produces exactly the unhelpful "something failed" with no detail.
+            var original = console.error;
+            console.error = function () {
+                original.apply(console, arguments);
+                show(Array.prototype.map.call(arguments, describe).join('\n').split('\n').slice(0, 20).join('\n'));
+            };
+            window.addEventListener('error', function (e) { show(e.message + ' (' + e.filename + ':' + e.lineno + ')'); });
+            window.addEventListener('unhandledrejection', function (e) { show(describe(e.reason)); });
+        })();
+    </script>
+
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+</body>
+
+</html>

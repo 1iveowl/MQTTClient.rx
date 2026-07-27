@@ -1,0 +1,11 @@
+@* Server-side router. The layout renders as real HTML and each page opts into WebAssembly
+   individually, so a client-side boot failure leaves the shell visible with an error rather than a
+   blank page. *@
+<Router AppAssembly="typeof(Program).Assembly"
+        AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }"
+        NotFoundPage="typeof(Pages.NotFound)">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

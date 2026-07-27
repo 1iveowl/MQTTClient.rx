@@ -1,0 +1,77 @@
+{
+	"name": "C# (.NET)",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:2-10.0-noble",
+	// Claude's VS Code extension only supports bypassPermissions from a non-root account.
+	// The standard developer account has passwordless sudo when elevated access is needed.
+	"remoteUser": "vscode",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"features": {
+		"ghcr.io/devcontainers/features/dotnet:2": {},
+		"ghcr.io/devcontainers/features/node:2": {
+			"version": "lts"
+		},
+		// Testcontainers starts a throwaway Mosquitto broker for the integration tests. A nested
+		// daemon keeps that broker a child of this container, so its published port lands on our
+		// loopback. Sharing the host daemon instead would make it a sibling, and every connection
+		// would be refused until TESTCONTAINERS_HOST_OVERRIDE was also set.
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	// Do not persist .vscode-server: a new named volume is root-owned before VS Code starts.
+	"mounts": [
+		"source=codex-home-${localWorkspaceFolderBasename},target=/home/vscode/.codex,type=volume",
+		"source=claude-home-${localWorkspaceFolderBasename},target=/home/vscode/.claude,type=volume",
+		"source=copilot-home-${localWorkspaceFolderBasename},target=/home/vscode/.copilot,type=volume",
+		// Keep a single host checkout as the source of truth for assistant skills.
+		// Clone ai-skill to ~/GitHub/ai-skill before creating the container.
+		"source=${localEnv:HOME}/GitHub/ai-skill,target=/opt/ai-skill,type=bind,consistency=cached"
+	],
+	"containerEnv": {
+		"CODEX_HOME": "/home/vscode/.codex",
+		"CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+		"COPILOT_HOME": "/home/vscode/.copilot"
+	},
+	"remoteEnv": {
+		"ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+		"OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+	},
+	// Deliberately NOT listing Sample.Dashboard's port here. forwardPorts is eager - VS Code binds
+	// the port on the host immediately - so declaring it makes that port unavailable to anything
+	// running on the host, including the dashboard itself. Ports the container actually listens on
+	// are forwarded automatically when they appear.
+	"forwardPorts": [
+		5000,
+		5001
+	],
+	"portsAttributes": {
+		"5001": {
+			"protocol": "https"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-dotnettools.csdevkit",
+				"ms-dotnettools.csharp",
+				"ms-dotnettools.vscode-dotnet-runtime",
+				"anthropic.claude-code",
+				"openai.chatgpt",
+				"GitHub.copilot",
+				"GitHub.copilot-chat"
+			],
+			"settings": {
+				"claudeCode.allowDangerouslySkipPermissions": true,
+				"claudeCode.initialPermissionMode": "bypassPermissions",
+				"claudeCode.preferredLocation": "sidebar",
+				"github.copilot.enable": {
+					"*": true
+				},
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"files.insertFinalNewline": true,
+				"editor.rulers": [
+					120
+				]
+			}
+		}
+	},
+	"postCreateCommand": "bash .devcontainer/post-create.sh"
+}
