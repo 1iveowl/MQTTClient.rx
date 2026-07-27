@@ -9,7 +9,7 @@
 [![System.Reactive](https://img.shields.io/badge/Rx-7.0-ff69b4.svg)](https://reactivex.io/)
 [![MQTT](https://img.shields.io/badge/MQTT-5.0%20%7C%203.1.1-660066.svg)](https://mqtt.org/)
 
-An MQTT **client** for .NET where the connection is a stream, not a state machine you drive by hand.
+An MQTT **client** for .NET where the connection is a stream.
 Subscribing connects. Disposing disconnects. A dropped connection reconnects itself and re-applies
 your subscriptions.
 
