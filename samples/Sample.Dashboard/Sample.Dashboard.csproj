@@ -8,7 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sample.Dashboard.Client\Sample.Dashboard.Client.csproj" />
     <ProjectReference Include="..\..\src\MQTTClientRx\MQTTClientRx.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.13" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.3" />
   </ItemGroup>
 
